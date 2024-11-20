@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BudgetBuddy", "BudgetBuddy.Blazor\BudgetBuddy.csproj", "{1A8B03BA-DFF9-4FD7-B6B7-198EFB963901}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budgetbuddy.tests", "Budgetbuddy.tests\Budgetbuddy.tests.csproj", "{7C639410-C076-4661-AD24-8B318DB8C748}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{1A8B03BA-DFF9-4FD7-B6B7-198EFB963901}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A8B03BA-DFF9-4FD7-B6B7-198EFB963901}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A8B03BA-DFF9-4FD7-B6B7-198EFB963901}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C639410-C076-4661-AD24-8B318DB8C748}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C639410-C076-4661-AD24-8B318DB8C748}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C639410-C076-4661-AD24-8B318DB8C748}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C639410-C076-4661-AD24-8B318DB8C748}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
