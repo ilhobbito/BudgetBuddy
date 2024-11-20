@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Emil\" />
+    <Folder Include="Tims\" />
     <Folder Include="Robin\" />
   </ItemGroup>
 
