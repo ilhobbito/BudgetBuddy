@@ -1,6 +1,81 @@
 @page "/Income"
-<h3>Inkomst</h3>
+@using BudgetBuddy.Models
+@using BudgetBuddy.Services
+@inject BudgetService BudgetService
+
+<div class="container mt-5">
+    <h1 class="mb-4">Inkomster</h1>
+    <p class="text-muted">Här kan du lägga till och hålla koll på dina inkomster.</p>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4>Lägg till inkomst</h4>
+        </div>
+        <div class="card-body">
+            <EditForm Model="@NewItem" OnValidSubmit="AddBudgetItem" FormName="BudgetForm">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Inkomstkälla:</label>
+                    <InputText id="name" class="form-control" @bind-Value="NewItem.Name" />
+                </div>
+                <div class="mb-3">
+                    <label for="amount" class="form-label">Belopp:</label>
+                    <InputNumber id="amount" class="form-control" @bind-Value="NewItem.Amount" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Lägg till</button>
+            </EditForm>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h4>Budgetposter</h4>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Inkomstkälla</th>
+                        <th>Belopp</th>
+                        <th>Datum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in BudgetService.GetBudgetItems())
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.Amount kr</td>
+                            <td>@item.Date.ToShortDateString()</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Totalt inkomst:</th>
+                        <th>@BudgetService.GetBudgetItems().Sum(x => x.Amount) kr</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
 
 @code {
-    
+    private BudgetItem NewItem = new() { Date = DateTime.Now };
+
+    private void AddBudgetItem()
+    {
+        BudgetService.AddBudgetItem(NewItem);
+        NewItem = new BudgetItem
+        {
+            Name = string.Empty,
+            Amount = 0,
+            Date = DateTime.Now
+        };
+    }
 }
