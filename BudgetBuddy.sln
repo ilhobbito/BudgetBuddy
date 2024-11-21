@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budgetbuddy.tests", "Budget
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BudgetBuddy.Lib", "BudgetBuddy.Lib\BudgetBuddy.Lib.csproj", "{18C6BF0D-F654-4509-BEF7-C0E2FFFBAA22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{E3B0287D-53BB-4B8F-A23E-4D65ACC45F23}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BudgetBuddy.Api", "BudgetBuddy.Api\BudgetBuddy.Api.csproj", "{E3B0287D-53BB-4B8F-A23E-4D65ACC45F23}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
