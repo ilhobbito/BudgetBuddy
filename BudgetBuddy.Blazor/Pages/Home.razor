@@ -1,18 +1,61 @@
 ﻿@page "/"
+@using BudgetBuddy.Services
+@inject BudgetService BudgetService
 
-<PageTitle>Start</PageTitle>
 
-<h1>Välkommen till BudgetBuddy</h1>  
-<br/>
-<h4>Här kan du se dina inkomster och utgifter, allt för att förenkla din ekonomi.</h4>
-<br/>
-<br/>
+<h1>Välkommen till BudgetBuddy</h1>
 
+<div class="container mt-5">
+    <h1 class="mb-4">Översikt</h1>
+    <p class="text-muted">Här är en sammanställning av dina inkomster och utgifter.</p>
+
+    <!-- Totalt inkomster -->
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h4>Totalt inkomster</h4>
+        </div>
+        <div class="card-body">
+            <h3 class="text-success">@BudgetService.GetTotalAmount(true) kr</h3>
+        </div>
+    </div>
 <img src="banknotes-7850299_640.jpg"/>
 
 
+    <!-- Totalt utgifter -->
+    <div class="card mt-3">
+        <div class="card-header bg-info text-white">
+            <h4>Totalt utgifter</h4>
+        </div>
+        <div class="card-body">
+            <h3 class="text-danger">@BudgetService.GetTotalAmount(false) kr</h3>
+        </div>
+    </div>
+
+    <!-- Totalt resultat (Inkomst - Utgifter) -->
+    <div class="card mt-3">
+        <div class="card-header bg-info text-white">
+            <h4>Totalt resultat</h4>
+        </div>
+        <div class="card-body">
+            @* Use the new method to calculate the net result *@
+            @{
+                var netResult = BudgetService.GetNetResult();
+            }
+            <h3 class="text-primary">
+                @if (netResult >= 0)
+                {
+                    @($"Du har {netResult} kr kvar att spendera ")
+                }
+                else
+                {
+                    @($"Din budget ligger på {netResult} kr, ajajajaj lyxfällan nästa")
+                }
+            </h3>
+        </div>
+    </div>
+</div>
 
 @code
 {
-    
+
 }
