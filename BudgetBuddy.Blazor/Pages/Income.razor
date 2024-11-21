@@ -37,28 +37,28 @@
         <div class="card-body">
             <table class="table table-striped">
                 <thead>
-                    <tr>
-                        <th>Inkomstkälla</th>
-                        <th>Belopp</th>
-                        <th>Datum</th>
-                    </tr>
+                <tr>
+                    <th>Inkomstkälla</th>
+                    <th>Belopp</th>
+                    <th>Datum</th>
+                </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in BudgetService.GetBudgetItems())
-                    {
-                        <tr>
-                            <td>@item.Name</td>
-                            <td>@item.Amount kr</td>
-                            <td>@item.Date.ToShortDateString()</td>
-                        </tr>
-                    }
+                @foreach (var item in BudgetService.GetBudgetItems().Where(i => i.IsIncome))
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Amount kr</td>
+                        <td>@item.Date.ToShortDateString()</td>
+                    </tr>
+                }
                 </tbody>
                 <tfoot>
-                    <tr>
-                        <th>Totalt inkomst:</th>
-                        <th>@BudgetService.GetBudgetItems().Sum(x => x.Amount) kr</th>
-                        <th></th>
-                    </tr>
+                <tr>
+                    <th>Totalt inkomst:</th>
+                    <th>@BudgetService.GetBudgetItems().Where(i => i.IsIncome).Sum(i => i.Amount) kr</th>
+                    <th></th>
+                </tr>
                 </tfoot>
             </table>
         </div>
@@ -66,15 +66,17 @@
 </div>
 
 @code {
-    private BudgetItem NewItem = new() { Date = DateTime.Now };
+    private BudgetItem NewItem = new();
 
     private void AddBudgetItem()
     {
+        NewItem.IsIncome = true;
         BudgetService.AddBudgetItem(NewItem);
         NewItem = new BudgetItem
         {
             Name = string.Empty,
             Amount = 0,
+            IsIncome = true,
             Date = DateTime.Now
         };
     }

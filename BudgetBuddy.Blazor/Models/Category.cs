@@ -9,5 +9,6 @@ public class Category
     [Required(ErrorMessage = "Kategorinamn är obligatoriskt.")]
     public string Name { get; set; }
     
+    [Range(1, double.MaxValue, ErrorMessage = "Gränsen måste vara större än 0.")]
     public decimal BudgetLimit { get; set; }
 }
