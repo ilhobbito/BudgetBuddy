@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication1.Controllers;
-
+/*
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/BudgetItemsTest")]
 
 public class BudgetItemsController : Controller
 {
@@ -19,11 +19,9 @@ public class BudgetItemsController : Controller
     [HttpPost]
     public void CreateBudgetItem([FromBody]BudgetItem budgetItem)
     {
-        
         _context.BudgetItems.Add(budgetItem);
         _context.SaveChanges();
 
-        
     }
 
     [HttpGet]
@@ -32,4 +30,4 @@ public class BudgetItemsController : Controller
         var budgetItems = _context.BudgetItems.ToList();
         return Ok(budgetItems);
     }
-}
+} */
