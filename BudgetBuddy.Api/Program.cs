@@ -16,5 +16,6 @@ if (app.Environment.IsDevelopment())
 }
 app.AddCategoryEndpoints();
 app.AddItemsEndpoints();
+app.AddUserEndpoints();
 app.UseHttpsRedirection();
 app.Run();
