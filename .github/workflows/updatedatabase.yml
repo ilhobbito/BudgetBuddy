@@ -5,9 +5,6 @@ on:
 
 jobs:
   Update-Local-Database:
-    strategy:
-      matrix:
-        op-system: ['ubuntu-latest', 'windows-latest']
     runs-on: windows-latest
          
     steps:
