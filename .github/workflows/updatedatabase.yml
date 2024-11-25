@@ -23,7 +23,7 @@ jobs:
       run: dotnet build BudgetBuddy.Api/BudgetBuddy.Api.csproj
 
     - name: Update-Database
-      run: dotnet ef database update --project BudgetBuddy.Api/BudgetBuddy.Api.csproj
+      run: dotnet ef database update --project ./source/repos/BudgetBuddy/BudgetBuddy/BudgetBuddy.Api/BudgetBuddy.Api.csproj
 
     - name: SuccessMessage
       if: success()
