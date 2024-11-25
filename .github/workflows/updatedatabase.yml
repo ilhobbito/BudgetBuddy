@@ -1,8 +1,7 @@
 name: Update Database
 
 on:
-  pull_request: 
-    branches: main 
+  workflow_dispatch:
 
 jobs:
   Update-Local-Database:
