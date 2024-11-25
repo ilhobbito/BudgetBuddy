@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         op-system: ['ubuntu-latest', 'windows-latest']
-    runs-on: ${{matrix.op-system}}
+    runs-on: windows-latest
          
     steps:
     - name: Checkout-Repository
