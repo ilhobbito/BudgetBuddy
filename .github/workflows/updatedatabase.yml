@@ -17,7 +17,7 @@ jobs:
     - name: Setup-Repository
       uses: actions/setup-dotnet@v4
       with: 
-        dotnet-version: 8.0.0
+        dotnet-version: 8.0
 
     - name: Build
       run: dotnet build
