@@ -7,7 +7,6 @@ jobs:
   Update-Local-Database:
     strategy:
       matrix:
-        dotnet-version: [8.0, 9.0]
         op-system: ['ubuntu-latest', 'windows-latest']
     runs-on: ${{matrix.op-system}}
          
@@ -18,7 +17,7 @@ jobs:
     - name: Setup-Repository
       uses: actions/setup-dotnet@v4
       with: 
-        dotnet-version: ${{matrix.dotnet-version}} 
+        dotnet-version: 8.0.0
 
     - name: Build
       run: dotnet build
