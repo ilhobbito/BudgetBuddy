@@ -3,12 +3,8 @@
 @using BudgetBuddy.Services
 @inject BudgetService BudgetService
 
-<h3>Utgifter</h3>
-<p>Här kan du se dina utgifter för månaden</p> 
-
-
 <div class="container mt-5">
-    <h1 class="mb-4">Inkomster</h1>
+    <h1 class="mb-4">Utgifter</h1>
     <p class="text-muted">Här kan du lägga till och hålla koll på dina utgifter.</p>
 
     <div class="card mb-4">
@@ -28,6 +24,16 @@
                     <label for="amount" class="form-label">Belopp:</label>
                     <InputNumber id="amount" class="form-control" @bind-Value="NewItem.Amount" />
                 </div>
+                <div class="mb-3">
+                    <label for="category" class="form-label">Kategori:</label>
+                    <InputSelect id="category" class="form-control" @bind-Value="NewItem.CategoryId">
+                        <option value="">Välj en kategori</option>
+                        @foreach (var category in Categories)
+                        {
+                            <option value="@category.Id">@category.Name</option>
+                        }
+                    </InputSelect>
+                </div>
 
                 <button type="submit" class="btn btn-primary">Lägg till</button>
             </EditForm>
@@ -44,6 +50,7 @@
                 <tr>
                     <th>Utgift</th>
                     <th>Belopp</th>
+                    <th>Kategori</th>
                     <th>Datum</th>
                 </tr>
                 </thead>
@@ -53,6 +60,7 @@
                     <tr>
                         <td>@item.Name</td>
                         <td>@item.Amount kr</td>
+                        <td>@BudgetService.GetCategoryName(item.CategoryId)</td>
                         <td>@item.Date.ToShortDateString()</td>
                     </tr>
                 }
@@ -71,6 +79,13 @@
 
 @code {
     private BudgetItem NewItem = new();
+    
+    private List<Category> Categories = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        Categories = BudgetService.GetCategories();
+    }
 
     private void AddBudgetItem()
     {
