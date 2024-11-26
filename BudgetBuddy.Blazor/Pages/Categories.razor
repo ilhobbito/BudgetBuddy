@@ -1,6 +1,71 @@
 @page "/Categories"
-<h3>Categories</h3>
+@using BudgetBuddy.Models
+@using BudgetBuddy.Services
+@inject BudgetService BudgetService
+
+<div class="container mt-5">
+    <h1 class="mb-4">Kategorier</h1>
+    <p class="text-muted">Här kan du lägga till och hålla koll på dina kategorier.</p>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4>Lägg till ny kategori</h4>
+        </div>
+        <div class="card-body">
+            <EditForm Model="@NewCategory" OnValidSubmit="AddCategory" FormName="BudgetForm">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Kategori</label>
+                    <InputText id="name" class="form-control" @bind-Value="NewCategory.Name" />
+                </div>
+                <div class="mb-3">
+                    <label for="amount" class="form-label">Budgetgräns</label>
+                    <InputNumber id="budgetlimit" class="form-control" @bind-Value="NewCategory.BudgetLimit" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Lägg till</button>
+            </EditForm>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h4>Budgetposter</h4>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Kategori</th>
+                    <th>Budgetgräns</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in BudgetService.GetCategories())
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.BudgetLimit kr</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 @code {
-    
+    private Category NewCategory = new();
+
+    private void AddCategory()
+    {
+        BudgetService.AddCategory(NewCategory);
+        NewCategory = new Category
+        {
+            Name = string.Empty,
+            BudgetLimit = 0
+        };
+    }
 }
