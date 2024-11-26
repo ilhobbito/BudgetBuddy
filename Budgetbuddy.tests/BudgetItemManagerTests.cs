@@ -44,6 +44,35 @@ public class BudgetItemManagerTests
         // Assert
         Assert.Equal(expectedResponse.StatusCode, actualResponse.StatusCode);
     }
+    [Fact]
+    public async Task TestIfCanCreateBudgetItemAgain()
+    {
+      
+        var mockHttpMessageHandler = new MockHttpMessageHandler((request, cancellationToken) =>
+        {
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
+        });
+        
+        var client = new HttpClient(mockHttpMessageHandler);
+        var sutBudgetItemManager = new BudgetItemManager(client);
+        
+        // Arrange
+        var budgetItem = new BudgetItem()
+        {
+            Name = "Testitem",
+            CategoryId = 1,
+            Amount = 200m,
+            IsIncome = true,
+            Date = DateTime.Now,
+        };
+        
+        HttpResponseMessage expectedResponse = new HttpResponseMessage(System.Net.HttpStatusCode.Conflict); 
+
+        // Act
+        var actualResponse = await sutBudgetItemManager.CreateBudgetItemAsync(budgetItem);
+        // Assert
+        Assert.Equal(expectedResponse.StatusCode, actualResponse.StatusCode);
+    }
 
    
 }
