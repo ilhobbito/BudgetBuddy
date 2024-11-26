@@ -1,0 +1,28 @@
+name: Test
+
+on: 
+  push:
+  workflow_dispatch:
+
+jobs:
+  Build-Project:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout-repository
+      run: actions/checkout@v4
+
+    - name: Build-project
+      run: dotnet build
+      
+  Run-Tests:
+    runs-on: ubuntu-latest
+    needs: [Build-Project]
+    if: success()
+    steps:
+    - name: Checkout-repository
+      run: actions/checkout@v4
+      
+    - name: Run-tests
+      run: dotnet test --no-build
+    
+      
