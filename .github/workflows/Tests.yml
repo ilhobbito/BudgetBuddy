@@ -10,6 +10,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        dotnet-version: '9.0.x'
     - name: Build-project
       run: dotnet build
       
@@ -20,6 +22,8 @@ jobs:
     if: success()
     steps:
     - uses: actions/checkout@v4  
+      with:
+        dotnet-version: '9.0.x'
     - name: Run-tests
       run: dotnet test --no-build
     
