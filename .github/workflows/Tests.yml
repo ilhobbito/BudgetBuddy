@@ -4,20 +4,9 @@ on:
   push:
   workflow_dispatch:
 
-jobs:
-  Build-Project:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        dotnet-version: '8.0'
-    - name: Build-project
-      run: dotnet build
-      
+jobs:      
   Run-Tests:
-    runs-on: ubuntu-latest
-    needs: [Build-Project]
+    runs-on: ubuntu-latest  
     
     steps:
     - uses: actions/checkout@v4  
@@ -25,6 +14,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0'
+        
+    - name: Build-project
+      run: dotnet build
+      
     - name: Check-for-tests
       run: dotnet test --no-build --list-tests
       
