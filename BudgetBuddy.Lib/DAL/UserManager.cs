@@ -4,103 +4,103 @@ using BudgetBuddy.Models;
 
 namespace BudgetBuddy.Lib.DAL;
 
-public class BudgetItemManager
+public class UserManager
 {
     private static readonly Uri BaseAddress = new Uri("https://localhost:44346/");
 
-    public async Task<List<BudgetItem>> GetBudgetItemsAsync()
+    public async Task<List<User>> GetUsersAsync()
     {
         using (var client = new HttpClient())
         {
             client.BaseAddress = BaseAddress;
-            HttpResponseMessage response = await client.GetAsync("api/BudgetItems");
+            HttpResponseMessage response = await client.GetAsync("api/Users");
 
             if (response.IsSuccessStatusCode)
             {
                 string responseString = await response.Content.ReadAsStringAsync();
-                List<BudgetItem> budgetItems = JsonSerializer.Deserialize<List<BudgetItem>>(responseString);
-                return budgetItems;
+                List<User> users = JsonSerializer.Deserialize<List<User>>(responseString);
+                return users;
             }
 
-            return new List<BudgetItem>();
+            return new List<User>();
         }
     }
 
-    public async Task<BudgetItem> GetBudgetItemByIdAsync(int id)
+    public async Task<User> GetUserByIdAsync(int id)
     {
         using (var client = new HttpClient())
         {
             client.BaseAddress = BaseAddress;
-            HttpResponseMessage response = await client.GetAsync("api/BudgetItems");
+            HttpResponseMessage response = await client.GetAsync("api/Users");
 
             if (response.IsSuccessStatusCode)
             {
                 string responseString = await response.Content.ReadAsStringAsync();
-                BudgetItem budgetItem = JsonSerializer.Deserialize<BudgetItem>(responseString);
-                return budgetItem;
+                User user = JsonSerializer.Deserialize<User>(responseString);
+                return user;
             }
 
             return null;
         }
     }
 
-    public async Task<HttpResponseMessage> CreateBudgetItemAsync(BudgetItem budgetItem)
+    public async Task<HttpResponseMessage> CreateUserAsync(User user)
     {
         HttpResponseMessage response = null;
-        if (budgetItem != null)
+        if (user != null)
         {
             using (var client = new HttpClient())
             {
                 client.BaseAddress = BaseAddress;
-                var json = JsonSerializer.Serialize(budgetItem);
+                var json = JsonSerializer.Serialize(user);
                 StringContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-                response = await client.PostAsync("api/BudgetItems", httpContent);
+                response = await client.PostAsync("api/Users", httpContent);
             }
         }
         else
         {
-            Console.WriteLine("BudgetItem is null");
+            Console.WriteLine("User is null");
         }
         return response;
     }
 
-    public async Task<HttpResponseMessage> UpdateBudgetItemAsync(BudgetItem budgetItem)
+    public async Task<HttpResponseMessage> UpdateUserAsync(User user)
     {
         HttpResponseMessage response = null;
-        if (budgetItem != null)
+        if (user != null)
         {
             using (var client = new HttpClient())
             {
                 client.BaseAddress = BaseAddress;
-                var json = JsonSerializer.Serialize(budgetItem);
+                var json = JsonSerializer.Serialize(user);
                 StringContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-                response = await client.PutAsync("api/BudgetItems", httpContent);
+                response = await client.PutAsync("api/Users", httpContent);
             }
         }
         else
         {
-            Console.WriteLine("BudgetItem is null");
+            Console.WriteLine("User is null");
         }
 
         return response;
     }
 
-    public async Task<HttpResponseMessage> DeleteBudgetItemAsync(BudgetItem budgetItem)
+    public async Task<HttpResponseMessage> DeleteUserAsync(User user)
     {
         HttpResponseMessage response = null;
-        if (budgetItem != null)
+        if (user != null)
         {
             using (var client = new HttpClient())
             {
                 client.BaseAddress = BaseAddress;
-                var json = JsonSerializer.Serialize(budgetItem);
+                var json = JsonSerializer.Serialize(user);
                 StringContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-                response = await client.DeleteAsync("api/BudgetItems/" + budgetItem.Id);
+                response = await client.DeleteAsync("api/Users/" + user.Id);
             }
         }
         else
         {
-            Console.WriteLine("BudgetItem is null");
+            Console.WriteLine("Users is null");
         }
         return response;
     }

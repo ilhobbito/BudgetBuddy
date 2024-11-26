@@ -4,77 +4,77 @@ using BudgetBuddy.Models;
 
 namespace BudgetBuddy.Lib.DAL;
 
-public class BudgetItemManager
+public class Categories
 {
     private static readonly Uri BaseAddress = new Uri("https://localhost:44346/");
 
-    public async Task<List<BudgetItem>> GetBudgetItemsAsync()
+    public async Task<List<Category>> GetCategoriesAsync()
     {
         using (var client = new HttpClient())
         {
             client.BaseAddress = BaseAddress;
-            HttpResponseMessage response = await client.GetAsync("api/BudgetItems");
+            HttpResponseMessage response = await client.GetAsync("api/Categories");
 
             if (response.IsSuccessStatusCode)
             {
                 string responseString = await response.Content.ReadAsStringAsync();
-                List<BudgetItem> budgetItems = JsonSerializer.Deserialize<List<BudgetItem>>(responseString);
-                return budgetItems;
+                List<Category> categories = JsonSerializer.Deserialize<List<Category>>(responseString);
+                return categories;
             }
 
-            return new List<BudgetItem>();
+            return new List<Category>();
         }
     }
 
-    public async Task<BudgetItem> GetBudgetItemByIdAsync(int id)
+    public async Task<Category> GetCategoryByIdAsync(int id)
     {
         using (var client = new HttpClient())
         {
             client.BaseAddress = BaseAddress;
-            HttpResponseMessage response = await client.GetAsync("api/BudgetItems");
+            HttpResponseMessage response = await client.GetAsync("api/Categories");
 
             if (response.IsSuccessStatusCode)
             {
                 string responseString = await response.Content.ReadAsStringAsync();
-                BudgetItem budgetItem = JsonSerializer.Deserialize<BudgetItem>(responseString);
-                return budgetItem;
+                Category category = JsonSerializer.Deserialize<Category>(responseString);
+                return category;
             }
 
             return null;
         }
     }
 
-    public async Task<HttpResponseMessage> CreateBudgetItemAsync(BudgetItem budgetItem)
+    public async Task<HttpResponseMessage> CreateCategoryAsync(Category category)
     {
         HttpResponseMessage response = null;
-        if (budgetItem != null)
+        if (category != null)
         {
             using (var client = new HttpClient())
             {
                 client.BaseAddress = BaseAddress;
-                var json = JsonSerializer.Serialize(budgetItem);
+                var json = JsonSerializer.Serialize(category);
                 StringContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-                response = await client.PostAsync("api/BudgetItems", httpContent);
+                response = await client.PostAsync("api/Categories", httpContent);
             }
         }
         else
         {
-            Console.WriteLine("BudgetItem is null");
+            Console.WriteLine("Category is null");
         }
         return response;
     }
 
-    public async Task<HttpResponseMessage> UpdateBudgetItemAsync(BudgetItem budgetItem)
+    public async Task<HttpResponseMessage> UpdateCategoryAsync(Category category)
     {
         HttpResponseMessage response = null;
-        if (budgetItem != null)
+        if (category != null)
         {
             using (var client = new HttpClient())
             {
                 client.BaseAddress = BaseAddress;
-                var json = JsonSerializer.Serialize(budgetItem);
+                var json = JsonSerializer.Serialize(category);
                 StringContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-                response = await client.PutAsync("api/BudgetItems", httpContent);
+                response = await client.PutAsync("api/Categories", httpContent);
             }
         }
         else
@@ -85,22 +85,22 @@ public class BudgetItemManager
         return response;
     }
 
-    public async Task<HttpResponseMessage> DeleteBudgetItemAsync(BudgetItem budgetItem)
+    public async Task<HttpResponseMessage> DeleteCategoryAsync(Category category)
     {
         HttpResponseMessage response = null;
-        if (budgetItem != null)
+        if (category != null)
         {
             using (var client = new HttpClient())
             {
                 client.BaseAddress = BaseAddress;
-                var json = JsonSerializer.Serialize(budgetItem);
+                var json = JsonSerializer.Serialize(category);
                 StringContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-                response = await client.DeleteAsync("api/BudgetItems/" + budgetItem.Id);
+                response = await client.DeleteAsync("api/Category/" + category.Id);
             }
         }
         else
         {
-            Console.WriteLine("BudgetItem is null");
+            Console.WriteLine("Category is null");
         }
         return response;
     }
