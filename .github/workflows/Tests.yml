@@ -26,7 +26,7 @@ jobs:
       with:
         dotnet-version: '8.0'
     - name: Check-for-tests
-      run: dotnet test --list-tests
+      run: dotnet test --no-build --list-tests
       
     - name: Run-tests
       run: dotnet test --no-build --logger "console;verbosity=detailed"
