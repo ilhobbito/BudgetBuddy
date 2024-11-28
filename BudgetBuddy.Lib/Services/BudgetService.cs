@@ -1,8 +1,4 @@
-using System.Threading.Tasks.Dataflow;
-using BudgetBuddy.Lib.DAL;
 using BudgetBuddy.Models;
-using Microsoft.EntityFrameworkCore;
-
 
 namespace BudgetBuddy.Services;
 
@@ -60,16 +56,19 @@ public class BudgetService
         var totalExpenses = await GetTotalAmount(false);
         return totalIncome - totalExpenses;
     }
-    //public List<Category> GetCategories() => await _categoriesManager.GetCategoriesAsync();
 
-    //public void AddCategory(Category category)
-    //{
-    //    Console.WriteLine($"Adding Category: Name={category.Name}, Limit={category.BudgetLimit}");
-    //    _categories.Add(category);
-    //}
-    public async Task<string> GetCategoryName(int categoryId)
+    public List<Category> GetCategories() => _categories;
+
+    public void AddCategory(Category category)
     {
         var category = await _categoriesManager.GetCategoryByIdAsync(categoryId);
         return category.Name != "" ? category.Name : "Okänd kategori";
     }
+    
+    public string GetCategoryName(int categoryId)
+    {
+        var category = GetCategories().FirstOrDefault(c => c.Id == categoryId);
+        return category != null ? category.Name : "Okänd kategori";
+    }
+    
 }
