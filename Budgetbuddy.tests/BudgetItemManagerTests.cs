@@ -45,6 +45,20 @@ public class BudgetItemManagerTests
         Assert.Equal(expectedResponse.StatusCode, actualResponse.StatusCode);
     }
     
+    [Fact]
+    public async Task TestIfReturnsErrorOnFailedCreation()
+    {
+        var mockHttpMessageHandler = new MockHttpMessageHandler((request, cancellationToken) =>
+        {
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
+        });
+        
+        var client = new HttpClient(mockHttpMessageHandler);
+        var sutBudgetItemManager = new BudgetItemManager(client);
+        
+        await Assert.ThrowsAnyAsync<ArgumentNullException>(() => sutBudgetItemManager.CreateBudgetItemAsync(null));
+    }
+    
 
    
 }

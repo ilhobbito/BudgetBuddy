@@ -49,8 +49,7 @@ public class BudgetItemManager
         HttpResponseMessage response = null;
         if (budgetItem == null)
         {
-            Console.WriteLine("BudgetItem is null");
-            return null;
+            throw new ArgumentNullException("BudgetItem is null");
         }
 
         var json = JsonSerializer.Serialize(budgetItem);
