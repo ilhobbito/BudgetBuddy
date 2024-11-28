@@ -58,4 +58,14 @@ public class BudgetService
         var category = GetCategories().FirstOrDefault(c => c.Id == categoryId);
         return category != null ? category.Name : "Okänd kategori";
     }
+    
+    public List<BudgetItem> GetBudgetItems(bool isIncome)
+    {
+        return _budgetItems
+            .Where(x => x.IsIncome == isIncome)
+            .ToList();
+
+        var incomes = GetBudgetItems(true);
+        var expenses = GetBudgetItems(false); 
+    }
 }
