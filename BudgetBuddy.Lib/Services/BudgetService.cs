@@ -22,14 +22,14 @@ public class BudgetService
 
     public BudgetService()
     {
-        _budgetItems.Add(new BudgetItem() { Name = "Lön", Amount = 2000, IsIncome = true, CategoryId = 1 });
-        _budgetItems.Add(new BudgetItem() { Name = "OF", Amount = 1337, IsIncome = true, CategoryId = 1});
-        _budgetItems.Add(new BudgetItem() { Name = "Twitch", Amount = 99, IsIncome = true, CategoryId = 1});
-        _budgetItems.Add(new BudgetItem() { Name = "Barnbidrag", Amount = 2400, IsIncome = true, CategoryId = 1});
-        _budgetItems.Add(new BudgetItem() { Name = "Netflix", Amount = 149, IsIncome = false, CategoryId = 3 });
-        _budgetItems.Add(new BudgetItem() { Name = "Pornhub subscription", Amount = 99, IsIncome = false, CategoryId = 3 });
-        _budgetItems.Add(new BudgetItem() { Name = "Donken", Amount = 99, IsIncome = false, CategoryId = 2 });
-        _budgetItems.Add(new BudgetItem() { Name = "H&M", Amount = 499, IsIncome = false, CategoryId = 4 });
+        _budgetItems.Add(new BudgetItem() { Name = "Lön", Amount = 2000, IsIncome = true, CategoryId = 1, Date = new DateTime(2024,1,10)});
+        _budgetItems.Add(new BudgetItem() { Name = "OF", Amount = 1337, IsIncome = true, CategoryId = 1, Date = new DateTime(2024,2,20)});
+        _budgetItems.Add(new BudgetItem() { Name = "Twitch", Amount = 99, IsIncome = true, CategoryId = 1,Date = new DateTime(2023,6,18)});
+        _budgetItems.Add(new BudgetItem() { Name = "Barnbidrag", Amount = 2400, IsIncome = true, CategoryId = 1, Date = new DateTime(2021,8,24)});
+        _budgetItems.Add(new BudgetItem() { Name = "Netflix", Amount = 149, IsIncome = false, CategoryId = 3,Date = new DateTime(2024,8,24) });
+        _budgetItems.Add(new BudgetItem() { Name = "Pornhub subscription", Amount = 99, IsIncome = false, CategoryId = 3,Date = new DateTime(2023,2,24) });
+        _budgetItems.Add(new BudgetItem() { Name = "Donken", Amount = 99, IsIncome = false, CategoryId = 2, Date = new DateTime(2024,8,24) });
+        _budgetItems.Add(new BudgetItem() { Name = "H&M", Amount = 499, IsIncome = false, CategoryId = 4,Date = new DateTime(2022,2,24) });
 
         _categories.Add(new Category() { Name = "Inkomst",  Id = 1 });
         _categories.Add(new Category() { Name = "Mat", BudgetLimit = 5000, Id = 2 });
