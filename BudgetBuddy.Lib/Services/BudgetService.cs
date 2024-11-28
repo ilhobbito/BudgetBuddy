@@ -1,61 +1,69 @@
+using System.Threading.Tasks.Dataflow;
+using BudgetBuddy.Lib.DAL;
 using BudgetBuddy.Models;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace BudgetBuddy.Services;
 
 public class BudgetService
 {
-    private readonly List<BudgetItem> _budgetItems = new();
-    private readonly List<Category> _categories = new();
-    public List<BudgetItem> GetBudgetItems() => _budgetItems;
-
-    public void AddBudgetItem(BudgetItem budgetItem)
+    private readonly CategoriesManager _categoriesManager;
+    private readonly BudgetItemManager _budgetItemManager;
+    
+    public BudgetService(CategoriesManager categoriesManager, BudgetItemManager budgetItemManager)
     {
-        _budgetItems.Add(budgetItem);
+        _categoriesManager = categoriesManager;
+        _budgetItemManager = budgetItemManager;
     }
 
-    public decimal GetTotalAmount(bool isIncome)
+    public static List<BudgetItem> BudgetItems { get; set; }
+    public async Task SeedCategoriesAndBudgetItemsAsync()
     {
-        return _budgetItems
+        var categories = await _categoriesManager.GetCategoriesAsync();
+        var BudgetItems = await _budgetItemManager.GetBudgetItemsAsync();
+        if (categories.Count() > 0 || BudgetItems.Count() > 0)
+        {
+            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Lön", Amount = 2000, IsIncome = true, CategoryId = 1 });
+            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "OF", Amount = 1337, IsIncome = true, CategoryId = 1});
+            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Twitch", Amount = 99, IsIncome = true, CategoryId = 1});
+            await  _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Barnbidrag", Amount = 2400, IsIncome = true, CategoryId = 1});
+            await  _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Netflix", Amount = 149, IsIncome = false, CategoryId = 3 });
+            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Pornhub subscription", Amount = 99, IsIncome = false, CategoryId = 3 });
+            await  _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Donken", Amount = 99, IsIncome = false, CategoryId = 2 });
+            await  _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "H&M", Amount = 499, IsIncome = false, CategoryId = 4 });
+
+            await  _categoriesManager.CreateCategoryAsync(new Category() { Name = "Inkomst",  Id = 1 });
+            await  _categoriesManager.CreateCategoryAsync(new Category() { Name = "Mat", BudgetLimit = 5000, Id = 2 });
+            await  _categoriesManager.CreateCategoryAsync(new Category() { Name = "Nöjen", BudgetLimit = 2500, Id = 3 });
+            await  _categoriesManager.CreateCategoryAsync(new Category() { Name = "Kläder", BudgetLimit = 1500, Id = 4 });
+            await  _categoriesManager.CreateCategoryAsync(new Category() { Name = "Övrigt", BudgetLimit = 1000, Id = 5 });
+        }
+    }
+
+    public async Task AddBudgetItem(BudgetItem budgetItem)
+    {
+        await _budgetItemManager.CreateBudgetItemAsync(budgetItem);
+    }
+
+    public async Task <decimal> GetTotalAmount(bool isIncome)
+    {
+        BudgetItems = await _budgetItemManager.GetBudgetItemsAsync();
+        return BudgetItems
             .Where(x => x.IsIncome == isIncome)
             .Sum(x => x.Amount);
     }
-
-    public BudgetService()
+    
+    public async Task<decimal> GetNetResult()
     {
-        _budgetItems.Add(new BudgetItem() { Name = "Lön", Amount = 2000, IsIncome = true, CategoryId = 1 });
-        _budgetItems.Add(new BudgetItem() { Name = "OF", Amount = 1337, IsIncome = true, CategoryId = 1});
-        _budgetItems.Add(new BudgetItem() { Name = "Twitch", Amount = 99, IsIncome = true, CategoryId = 1});
-        _budgetItems.Add(new BudgetItem() { Name = "Barnbidrag", Amount = 2400, IsIncome = true, CategoryId = 1});
-        _budgetItems.Add(new BudgetItem() { Name = "Netflix", Amount = 149, IsIncome = false, CategoryId = 3 });
-        _budgetItems.Add(new BudgetItem() { Name = "Pornhub subscription", Amount = 99, IsIncome = false, CategoryId = 3 });
-        _budgetItems.Add(new BudgetItem() { Name = "Donken", Amount = 99, IsIncome = false, CategoryId = 2 });
-        _budgetItems.Add(new BudgetItem() { Name = "H&M", Amount = 499, IsIncome = false, CategoryId = 4 });
-
-        _categories.Add(new Category() { Name = "Inkomst",  Id = 1 });
-        _categories.Add(new Category() { Name = "Mat", BudgetLimit = 5000, Id = 2 });
-        _categories.Add(new Category() { Name = "Nöjen", BudgetLimit = 2500, Id = 3 });
-        _categories.Add(new Category() { Name = "Kläder", BudgetLimit = 1500, Id = 4 });
-        _categories.Add(new Category() { Name = "Övrigt", BudgetLimit = 1000, Id = 5 });
-        
-    }
-
-    public decimal GetNetResult()
-    {
-        var totalIncome = GetTotalAmount(true);
-        var totalExpenses = GetTotalAmount(false);
+        var totalIncome = await GetTotalAmount(true);
+        var totalExpenses = await GetTotalAmount(false);
         return totalIncome - totalExpenses;
     }
-
-    public List<Category> GetCategories() => _categories;
-
-    public void AddCategory(Category category)
+    
+    public async Task<string> GetCategoryName(int categoryId)
     {
-        Console.WriteLine($"Adding Category: Name={category.Name}, Limit={category.BudgetLimit}");
-        _categories.Add(category);
-    }
-    public string GetCategoryName(int categoryId)
-    {
-        var category = GetCategories().FirstOrDefault(c => c.Id == categoryId);
-        return category != null ? category.Name : "Okänd kategori";
+        var category = await _categoriesManager.GetCategoryByIdAsync(categoryId);
+        return category.Name != "" ? category.Name : "Okänd kategori";
     }
 }

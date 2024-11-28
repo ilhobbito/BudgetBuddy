@@ -1,5 +1,3 @@
-using BudgetBuddy.Models;
-using Microsoft.EntityFrameworkCore;
 using WebApplication1;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,15 +5,31 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServices();
 
 var app = builder.Build();
-app.MapControllers();
+
+app.UseCors("AllowBlazorApp");
+Console.WriteLine("CORS Policy Applied");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseHttpsRedirection();
+app.UseRouting();
+
+app.UseAuthorization();
+app.MapControllers();
+
+// app.UseEndpoints(endpoints =>
+// {
+//     endpoints.MapControllers();
+// });
+
 app.AddCategoryEndpoints();
 app.AddItemsEndpoints();
 app.AddUserEndpoints();
 app.UseHttpsRedirection();
+
 app.Run();

@@ -7,7 +7,7 @@ namespace BudgetBuddy.Lib.DAL;
 public class BudgetItemManager
 {
     private readonly HttpClient _client;
-    private static readonly Uri BaseAddress = new Uri("https://localhost:44346/");
+    public static readonly Uri BaseAddress = new Uri("https://localhost:7107/");
 
     public BudgetItemManager(HttpClient httpClient)
     {

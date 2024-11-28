@@ -14,7 +14,7 @@
             <h4>Totalt inkomster</h4>
         </div>
         <div class="card-body">
-            <h3 class="text-success">@BudgetService.GetTotalAmount(true) kr</h3>
+            <h3 class="text-success">@totalIncome kr</h3>
         </div>
     </div>
 
@@ -24,7 +24,7 @@
             <h4>Totalt utgifter</h4>
         </div>
         <div class="card-body">
-            <h3 class="text-danger">@BudgetService.GetTotalAmount(false) kr</h3>
+            <h3 class="text-danger">@totalExpense kr</h3>
         </div>
     </div>
 
@@ -36,23 +36,31 @@
         <div class="card-body">
            
             @{
-                var netResult = BudgetService.GetNetResult();
+            
+                <h3 class="text-primary">
+                    @if (netResult >= 0)
+                    {
+                        @($"Du har {netResult} kr kvar att spendera ")
+                    }
+                    else
+                    {
+                        @($"Din budget ligger på {netResult} kr, ajajajaj lyxfällan nästa")
+                    }
+                </h3>
             }
-            <h3 class="text-primary">
-                @if (netResult >= 0)
-                {
-                    @($"Du har {netResult} kr kvar att spendera ")
-                }
-                else
-                {
-                    @($"Din budget ligger på {netResult} kr, ajajajaj lyxfällan nästa")
-                }
-            </h3>
         </div>
     </div>
 </div>
 
 @code
 {
-
+    private decimal netResult;
+    private decimal totalIncome;
+    private decimal totalExpense;
+    protected override async Task OnInitializedAsync()
+    {
+        netResult = await BudgetService.GetNetResult();
+        totalIncome = await BudgetService.GetTotalAmount(true);
+        totalExpense = await BudgetService.GetTotalAmount(false);
+    }
 }

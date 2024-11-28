@@ -4,9 +4,9 @@ using BudgetBuddy.Models;
 
 namespace BudgetBuddy.Lib.DAL;
 
-public class Categories
+public class CategoriesManager
 {
-    private static readonly Uri BaseAddress = new Uri("https://localhost:44346/");
+    public static readonly Uri BaseAddress = new Uri("https://localhost:7107/");
 
     public async Task<List<Category>> GetCategoriesAsync()
     {
