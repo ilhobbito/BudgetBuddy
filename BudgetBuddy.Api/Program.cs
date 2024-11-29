@@ -4,10 +4,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServices();
 
-var app = builder.Build();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        name:"AllowAllOrigins",
+        policy =>
+        {
+            policy.AllowAnyOrigin();
+            policy.AllowAnyHeader();
+            policy.AllowAnyMethod();
+        });
+});
 
-app.UseCors("AllowBlazorApp");
-Console.WriteLine("CORS Policy Applied");
+var app = builder.Build();
+//TODO: Maybe not allow all to access?
+app.UseCors("AllowAllOrigins");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -30,6 +41,5 @@ app.MapControllers();
 app.AddCategoryEndpoints();
 app.AddItemsEndpoints();
 app.AddUserEndpoints();
-app.UseHttpsRedirection();
 
 app.Run();
