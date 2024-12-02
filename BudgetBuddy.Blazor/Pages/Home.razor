@@ -1,6 +1,10 @@
 ﻿@page "/"
+@using BudgetBuddy.Lib.DAL
+@using BudgetBuddy.Models
 @using BudgetBuddy.Services
 @inject BudgetService BudgetService
+@inject CategoriesManager CategoriesManager
+@inject BudgetItemManager BudgetItemManager
 
 <h1>Välkommen till BudgetBuddy</h1>
 
@@ -14,7 +18,7 @@
             <h4>Totalt inkomster</h4>
         </div>
         <div class="card-body">
-            <h3 class="text-success">@BudgetService.GetTotalAmount(true) kr</h3>
+            <h3 class="text-success">@totalIncome kr</h3>
         </div>
     </div>
 
@@ -24,7 +28,7 @@
             <h4>Totalt utgifter</h4>
         </div>
         <div class="card-body">
-            <h3 class="text-danger">@BudgetService.GetTotalAmount(false) kr</h3>
+            <h3 class="text-danger">@totalExpense kr</h3>
         </div>
     </div>
 
@@ -70,6 +74,8 @@
     private decimal netResult;
     private decimal totalIncome;
     private decimal totalExpense;
+    private List<BudgetItem> BudgetsItems = new List<BudgetItem>();
+    private List<Category> Categories = new List<Category>();
     
     private string display = "";
     protected override async Task OnInitializedAsync()
@@ -77,6 +83,14 @@
         netResult = await BudgetService.GetNetResult();
         totalIncome = await BudgetService.GetTotalAmount(true);
         totalExpense = await BudgetService.GetTotalAmount(false);
+        Categories = await CategoriesManager.GetCategoriesAsync();
+        BudgetsItems = await BudgetItemManager.GetBudgetItemsAsync();
+
+        if (Categories.Count <= 0 || BudgetsItems.Count <= 0)
+        {
+            BudgetService.SeedCategoriesAndBudgetItemsAsync(Categories, BudgetsItems);
+        }
+
     }
     
     private void Clear()

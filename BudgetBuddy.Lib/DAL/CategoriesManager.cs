@@ -19,7 +19,10 @@ public class CategoriesManager
             {
                 string responseString = await response.Content.ReadAsStringAsync();
                 List<Category> categories = JsonSerializer.Deserialize<List<Category>>(responseString);
-                return categories;
+                if (categories != null)
+                {
+                    return categories;
+                }
             }
 
             return new List<Category>();

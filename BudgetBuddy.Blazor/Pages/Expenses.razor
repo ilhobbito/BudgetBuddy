@@ -1,7 +1,11 @@
 @page "/Expenses"
+@using BudgetBuddy.Lib.DAL
 @using BudgetBuddy.Models
 @using BudgetBuddy.Services
+@using System.Linq.Expressions
 @inject BudgetService BudgetService
+@inject CategoriesManager CategoriesManager
+@inject BudgetItemManager BudgetItemManager
 
 <div class="container mt-5">
     <h1 class="mb-4">Utgifter</h1>
@@ -54,7 +58,7 @@
                             <div class="form-group mb-0 me-2">
                                 <select id="yearSelect" class="form-select" @bind="SelectedYear">
                                     <option value="">År</option>
-                                    @foreach (var year in GetYears())
+                                    @foreach (var year in Years)
                                     {
                                         <option value="@year">@year</option>
                                     }
@@ -113,18 +117,21 @@
     private List<Category> Categories = new();
     private string SelectedMonth { get; set; } = "";
     private string SelectedYear { get; set; } = "";
-    private List<BudgetItem> FilteredBudgetItems => GetFilteredBudgetItems();
+    private List<BudgetItem> FilteredBudgetItems { get; set; }
+    private IEnumerable<int> Years { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        Categories = BudgetService.GetCategories();
+        Categories = await CategoriesManager.GetCategoriesAsync();
+        FilteredBudgetItems = await GetFilteredBudgetItems();
+        Years = await GetYears();
     }
 
     private void AddBudgetItem()
     {
         NewItem.IsIncome = false; // Set item as expense
         NewItem.Date = DateTime.Now;
-        BudgetService.AddBudgetItem(NewItem);
+        BudgetItemManager.CreateBudgetItemAsync(NewItem);
         NewItem = new BudgetItem
         {
             Name = string.Empty,
@@ -134,21 +141,23 @@
         };
     }
 
-    private List<BudgetItem> GetFilteredBudgetItems()
+    private async Task<List<BudgetItem>> GetFilteredBudgetItems()
     {
-        var items = BudgetService.GetBudgetItems().Where(i => i.IsIncome == false);
+        var items = await BudgetItemManager.GetBudgetItemsAsync();
+        items = items.Where(i => i.IsIncome == false).ToList();
+        
         if (!string.IsNullOrEmpty(SelectedMonth))
         {
             var month = int.Parse(SelectedMonth);
-            items = items.Where(i => i.Date.Month == month);
+            items = items.Where(i => i.Date.Month == month).ToList();
         }
         if (!string.IsNullOrEmpty(SelectedYear))
         {
             var year = int.Parse(SelectedYear);
-            items = items.Where(i => i.Date.Year == year);
+            items = items.Where(i => i.Date.Year == year).ToList();
         }
 
-        return items.ToList();
+        return items;
     }
 
     private IEnumerable<(string Text, string Value)> GetMonths()
@@ -159,9 +168,10 @@
         ));
     }
 
-    private IEnumerable<int> GetYears()
+    private async Task<IEnumerable<int>> GetYears()
     {
-        var years = BudgetService.GetBudgetItems()
+        var items = await BudgetItemManager.GetBudgetItemsAsync(); 
+        var years = items
             .Where(i => i.IsIncome == false)
             .Select(i => i.Date.Year)
             .Distinct()
