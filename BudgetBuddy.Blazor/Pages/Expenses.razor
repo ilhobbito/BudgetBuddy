@@ -1,5 +1,4 @@
 @page "/Expenses"
-@using BudgetBuddy.Lib.DAL
 @using BudgetBuddy.Models
 @using BudgetBuddy.Services
 @inject BudgetService BudgetService
@@ -8,72 +7,103 @@
     <h1 class="mb-4">Utgifter</h1>
     <p class="text-muted">Här kan du lägga till och hålla koll på dina utgifter.</p>
 
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            <h4>Lägg till utgift</h4>
-        </div>
-        <div class="card-body">
-            <EditForm Model="@NewItem" OnValidSubmit="AddBudgetItem" FormName="BudgetForm">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
+    <div class="row">
+        <!-- Add Expense Form -->
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4>Lägg till utgift</h4>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@NewItem" OnValidSubmit="AddBudgetItem" FormName="BudgetForm">
+                        <DataAnnotationsValidator/>
+                        <ValidationSummary/>
 
-                <div class="mb-3">
-                    <label for="name" class="form-label">Utgiftskälla:</label>
-                    <InputText id="name" class="form-control" @bind-Value="NewItem.Name" />
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Utgiftskälla:</label>
+                            <InputText id="name" class="form-control" @bind-Value="NewItem.Name"/>
+                        </div>
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Belopp:</label>
+                            <InputNumber id="amount" class="form-control" @bind-Value="NewItem.Amount"/>
+                        </div>
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Kategori:</label>
+                            <InputSelect id="category" class="form-control" @bind-Value="NewItem.CategoryId">
+                                <option value="">Välj en kategori</option>
+                                @foreach (var category in Categories)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Lägg till</button>
+                    </EditForm>
                 </div>
-                <div class="mb-3">
-                    <label for="amount" class="form-label">Belopp:</label>
-                    <InputNumber id="amount" class="form-control" @bind-Value="NewItem.Amount" />
+            </div>
+        </div>
+
+        <!-- Expenses Table -->
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Budgetposter</h4>
+                        <div class="d-flex mb-0">
+                            <div class="form-group mb-0 me-2">
+                                <select id="yearSelect" class="form-select" @bind="SelectedYear">
+                                    <option value="">År</option>
+                                    @foreach (var year in GetYears())
+                                    {
+                                        <option value="@year">@year</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group mb-0 me-2">
+                                <select id="monthSelect" class="form-select" @bind="SelectedMonth">
+                                    <option value="">Alla månader</option>
+                                    @foreach (var month in GetMonths())
+                                    {
+                                        <option value="@month.Value">@month.Text</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="category" class="form-label">Kategori:</label>
-                    <InputSelect id="category" class="form-control" @bind-Value="NewItem.CategoryId">
-                        <option value="">Välj en kategori</option>
-                        @foreach (var category in Categories)
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Utgift</th>
+                            <th>Belopp</th>
+                            <th>Kategori</th>
+                            <th>Datum</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var item in FilteredBudgetItems)
                         {
-                            <option value="@category.Id">@category.Name</option>
+                            <tr>
+                                <td>@item.Name</td>
+                                <td>@item.Amount kr</td>
+                                <td>@BudgetService.GetCategoryName(item.CategoryId)</td>
+                                <td>@item.Date.ToShortDateString()</td>
+                            </tr>
                         }
-                    </InputSelect>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th>Totala utgifter:</th>
+                            <th>@FilteredBudgetItems.Sum(i => i.Amount) kr</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        </tfoot>
+                    </table>
                 </div>
-
-                <button type="submit" class="btn btn-primary">Lägg till</button>
-            </EditForm>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header bg-success text-white">
-            <h4>Budgetposter</h4>
-        </div>
-        <div class="card-body">
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Utgift</th>
-                    <th>Belopp</th>
-                    <th>Kategori</th>
-                    <th>Datum</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var item in BudgetItems.Where(i => i.IsIncome == false))
-                {
-                    <tr>
-                        <td>@item.Name</td>
-                        <td>@item.Amount kr</td>
-                        <td>@BudgetService.GetCategoryName(item.CategoryId)</td>
-                        <td>@item.Date.ToShortDateString()</td>
-                    </tr>
-                }
-                </tbody>
-                <tfoot>
-                <tr>
-                    <th>Totala utgifter:</th>
-                    <th>@BudgetItems.Where(i => i.IsIncome == false).Sum(i => i.Amount) kr</th>
-                    <th></th>
-                </tr>
-                </tfoot>
-            </table>
+            </div>
         </div>
     </div>
 </div>
@@ -81,20 +111,19 @@
 @code {
     private BudgetItem NewItem = new();
     private List<Category> Categories = new();
-    private List<BudgetItem> BudgetItems = new();
+    private string SelectedMonth { get; set; } = "";
+    private string SelectedYear { get; set; } = "";
+    private List<BudgetItem> FilteredBudgetItems => GetFilteredBudgetItems();
 
-    private readonly BudgetItemManager _budgetItemManager;
-    private readonly CategoriesManager _categoriesManager;
-    
     protected override async Task OnInitializedAsync()
     {
-        Categories = await _categoriesManager.GetCategoriesAsync();
-        BudgetItems = await _budgetItemManager.GetBudgetItemsAsync();
+        Categories = BudgetService.GetCategories();
     }
 
     private void AddBudgetItem()
     {
-        NewItem.IsIncome = false;
+        NewItem.IsIncome = false; // Set item as expense
+        NewItem.Date = DateTime.Now;
         BudgetService.AddBudgetItem(NewItem);
         NewItem = new BudgetItem
         {
@@ -103,5 +132,40 @@
             IsIncome = false,
             Date = DateTime.Now
         };
+    }
+
+    private List<BudgetItem> GetFilteredBudgetItems()
+    {
+        var items = BudgetService.GetBudgetItems().Where(i => i.IsIncome == false);
+        if (!string.IsNullOrEmpty(SelectedMonth))
+        {
+            var month = int.Parse(SelectedMonth);
+            items = items.Where(i => i.Date.Month == month);
+        }
+        if (!string.IsNullOrEmpty(SelectedYear))
+        {
+            var year = int.Parse(SelectedYear);
+            items = items.Where(i => i.Date.Year == year);
+        }
+
+        return items.ToList();
+    }
+
+    private IEnumerable<(string Text, string Value)> GetMonths()
+    {
+        return Enumerable.Range(1, 12).Select(m => (
+            Text: new DateTime(1, m, 1).ToString("MMMM"),
+            Value: m.ToString()
+        ));
+    }
+
+    private IEnumerable<int> GetYears()
+    {
+        var years = BudgetService.GetBudgetItems()
+            .Where(i => i.IsIncome == false)
+            .Select(i => i.Date.Year)
+            .Distinct()
+            .OrderByDescending(y => y);
+        return years;
     }
 }

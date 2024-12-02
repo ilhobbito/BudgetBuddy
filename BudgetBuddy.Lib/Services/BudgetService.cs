@@ -60,7 +60,13 @@ public class BudgetService
         var totalExpenses = await GetTotalAmount(false);
         return totalIncome - totalExpenses;
     }
-    
+    //public List<Category> GetCategories() => await _categoriesManager.GetCategoriesAsync();
+
+    //public void AddCategory(Category category)
+    //{
+    //    Console.WriteLine($"Adding Category: Name={category.Name}, Limit={category.BudgetLimit}");
+    //    _categories.Add(category);
+    //}
     public async Task<string> GetCategoryName(int categoryId)
     {
         var category = await _categoriesManager.GetCategoryByIdAsync(categoryId);
