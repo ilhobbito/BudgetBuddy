@@ -1,4 +1,5 @@
 @page "/Categories"
+@using BudgetBuddy.Lib.DAL
 @using BudgetBuddy.Models
 @using BudgetBuddy.Services
 @inject BudgetService BudgetService
@@ -43,7 +44,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var item in BudgetService.GetCategories())
+                @foreach (var item in CategoryList)
                 {
                     <tr>
                         <td>@item.Name</td>
@@ -57,15 +58,27 @@
 </div>
 
 @code {
-    private Category NewCategory = new();
+    private readonly CategoriesManager _categoriesManager;
 
-    private void AddCategory()
+    
+    public Categories(CategoriesManager categoriesManager)
     {
-        BudgetService.AddCategory(NewCategory);
+        _categoriesManager = categoriesManager;
+    }
+    private Category NewCategory = new();
+    private List<Category> CategoryList = new List<Category>();
+    
+    private async Task AddCategory()
+    {
+        CategoryList = await _categoriesManager.GetCategoriesAsync();
+        
         NewCategory = new Category
         {
             Name = string.Empty,
             BudgetLimit = 0
         };
+        
+        _categoriesManager.CreateCategoryAsync(NewCategory);
     }
+    
 }

@@ -7,8 +7,8 @@
 <div class="container mt-5">
     <h1 class="mb-4">Översikt</h1>
     <p class="text-muted">Här är en sammanställning av dina inkomster och utgifter.</p>
-    <img src="banknotes-7850299_640.jpg" class="img-fluid"/>
-
+    <img src="banknotes-7850299_640.jpg" alt=""/>
+   
     <div class="card">
         <div class="card-header bg-info text-white">
             <h4>Totalt inkomster</h4>
@@ -18,6 +18,7 @@
         </div>
     </div>
 
+ 
     <div class="card mt-3">
         <div class="card-header bg-info text-white">
             <h4>Totalt utgifter</h4>
@@ -26,15 +27,16 @@
             <h3 class="text-danger">@BudgetService.GetTotalAmount(false) kr</h3>
         </div>
     </div>
-</div>
 
+   
     <div class="card mt-3">
         <div class="card-header bg-info text-white">
             <h4>Totalt resultat</h4>
         </div>
         <div class="card-body">
+           
             @{
-                var netResult = BudgetService.GetNetResult();
+                //var netResult = await BudgetService.GetNetResult();
             }
             <h3 class="text-primary">
                 @if (netResult >= 0)
@@ -48,41 +50,51 @@
             </h3>
         </div>
     </div>
+</div>
 
-    <div class="card mt-4">
-        <div class="card-header bg-info text-white">
-            <h4>Miniräknare</h4>
-        </div>
-        <div class="card-body">
-            <div class="calculator">
-                <!-- Ett enda textfält för att skriva in ekvationen -->
-                <input type="text" class="form-control mb-3" @bind="display" placeholder="Skriv din ekvation här" />
-                <button class="btn btn-success" @onclick="Calculate">=</button>
-                <button class="btn btn-danger" @onclick="Clear">C</button>
-            </div>
+<div class="card mt-4">
+    <div class="card-header bg-info text-white">
+        <h4>Miniräknare</h4>
+    </div>
+    <div class="card-body">
+        <div class="calculator">
+            <!-- Ett enda textfält för att skriva in ekvationen -->
+            <input type="text" class="form-control mb-3" @bind="display" placeholder="Skriv din ekvation här" />
+            <button class="btn btn-success" @onclick="Calculate">=</button>
+            <button class="btn btn-danger" @onclick="Clear">C</button>
         </div>
     </div>
+</div>
+@code
+{
+    private decimal netResult;
+    private decimal totalIncome;
+    private decimal totalExpense;
+    
+    private string display = "";
+    protected override async Task OnInitializedAsync()
+    {
+        netResult = await BudgetService.GetNetResult();
+        totalIncome = await BudgetService.GetTotalAmount(true);
+        totalExpense = await BudgetService.GetTotalAmount(false);
+    }
+    
+    private void Clear()
+    {
+        display = ""; // Rensar inmatningsfältet
+    }
 
-
-    @code {
-        private string display = "";
-
-        private void Clear()
+    private void Calculate()
+    {
+        try
         {
-            display = ""; // Rensar inmatningsfältet
+            // Utvärdera uttrycket med hjälp av DataTable.Compute
+            var result = new System.Data.DataTable().Compute(display, null);
+            display = result.ToString();
         }
-
-        private void Calculate()
+        catch
         {
-            try
-            {
-                // Utvärdera uttrycket med hjälp av DataTable.Compute
-                var result = new System.Data.DataTable().Compute(display, null);
-                display = result.ToString();
-            }
-            catch
-            {
-                display = "Fel i uttrycket!";
-            }
+            display = "Fel i uttrycket!";
         }
     }
+}

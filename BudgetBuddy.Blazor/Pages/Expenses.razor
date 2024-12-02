@@ -1,4 +1,5 @@
 @page "/Expenses"
+@using BudgetBuddy.Lib.DAL
 @using BudgetBuddy.Models
 @using BudgetBuddy.Services
 @inject BudgetService BudgetService
@@ -55,7 +56,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var item in BudgetService.GetBudgetItems().Where(i => i.IsIncome == false))
+                @foreach (var item in BudgetItems.Where(i => i.IsIncome == false))
                 {
                     <tr>
                         <td>@item.Name</td>
@@ -68,7 +69,7 @@
                 <tfoot>
                 <tr>
                     <th>Totala utgifter:</th>
-                    <th>@BudgetService.GetBudgetItems().Where(i => i.IsIncome == false).Sum(i => i.Amount) kr</th>
+                    <th>@BudgetItems.Where(i => i.IsIncome == false).Sum(i => i.Amount) kr</th>
                     <th></th>
                 </tr>
                 </tfoot>
@@ -79,12 +80,16 @@
 
 @code {
     private BudgetItem NewItem = new();
-    
     private List<Category> Categories = new();
+    private List<BudgetItem> BudgetItems = new();
+
+    private readonly BudgetItemManager _budgetItemManager;
+    private readonly CategoriesManager _categoriesManager;
     
     protected override async Task OnInitializedAsync()
     {
-        Categories = BudgetService.GetCategories();
+        Categories = await _categoriesManager.GetCategoriesAsync();
+        BudgetItems = await _budgetItemManager.GetBudgetItemsAsync();
     }
 
     private void AddBudgetItem()

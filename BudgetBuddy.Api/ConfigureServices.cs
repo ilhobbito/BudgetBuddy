@@ -12,5 +12,15 @@ public static class ConfigureServices
         builder.Services.AddDbContext<BudgetBuddyContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
         builder.Services.AddControllers();
+        
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowBlazorApp", builder =>
+            {
+                builder.WithOrigins("https://localhost:5231") // URL of your Blazor WebAssembly app
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
     }
 }
