@@ -18,7 +18,7 @@
             <h4>Totalt inkomster</h4>
         </div>
         <div class="card-body">
-            <h3 class="text-success">@totalIncome kr</h3>
+            <h3 class="text-success">@_totalIncome kr</h3>
         </div>
     </div>
 
@@ -28,7 +28,7 @@
             <h4>Totalt utgifter</h4>
         </div>
         <div class="card-body">
-            <h3 class="text-danger">@totalExpense kr</h3>
+            <h3 class="text-danger">@_totalExpense kr</h3>
         </div>
     </div>
 
@@ -43,13 +43,13 @@
                 //var netResult = await BudgetService.GetNetResult();
             }
             <h3 class="text-primary">
-                @if (netResult >= 0)
+                @if (_netResult >= 0)
                 {
-                    @($"Du har {netResult} kr kvar att spendera ")
+                    @($"Du har {_netResult} kr kvar att spendera ")
                 }
                 else
                 {
-                    @($"Din budget ligger på {netResult} kr, ajajajaj lyxfällan nästa")
+                    @($"Din budget ligger på {_netResult} kr, ajajajaj lyxfällan nästa")
                 }
             </h3>
         </div>
@@ -63,7 +63,7 @@
     <div class="card-body">
         <div class="calculator">
             <!-- Ett enda textfält för att skriva in ekvationen -->
-            <input type="text" class="form-control mb-3" @bind="display" placeholder="Skriv din ekvation här" />
+            <input type="text" class="form-control mb-3" @bind="_display" placeholder="Skriv din ekvation här" />
             <button class="btn btn-success" @onclick="Calculate">=</button>
             <button class="btn btn-danger" @onclick="Clear">C</button>
         </div>
@@ -71,31 +71,31 @@
 </div>
 @code
 {
-    private decimal netResult;
-    private decimal totalIncome;
-    private decimal totalExpense;
-    private List<BudgetItem> BudgetsItems = new List<BudgetItem>();
-    private List<Category> Categories = new List<Category>();
+    private decimal _netResult;
+    private decimal _totalIncome;
+    private decimal _totalExpense;
+    private List<BudgetItem> _budgetsItems = new List<BudgetItem>();
+    private List<Category> _categories = new List<Category>();
     
-    private string display = "";
+    private string? _display = "";
     protected override async Task OnInitializedAsync()
     {
-        netResult = await BudgetService.GetNetResult();
-        totalIncome = await BudgetService.GetTotalAmount(true);
-        totalExpense = await BudgetService.GetTotalAmount(false);
-        Categories = await CategoriesManager.GetCategoriesAsync();
-        BudgetsItems = await BudgetItemManager.GetBudgetItemsAsync();
+        _netResult = await BudgetService.GetNetResult();
+        _totalIncome = await BudgetService.GetTotalAmount(true);
+        _totalExpense = await BudgetService.GetTotalAmount(false);
+        _categories = await CategoriesManager.GetCategoriesAsync();
+        _budgetsItems = await BudgetItemManager.GetBudgetItemsAsync();
 
-        if (Categories.Count <= 0 || BudgetsItems.Count <= 0)
+        if (_categories.Count <= 0 || _budgetsItems.Count <= 0)
         {
-            BudgetService.SeedCategoriesAndBudgetItemsAsync(Categories, BudgetsItems);
+            await BudgetService.SeedCategoriesAndBudgetItemsAsync(_categories, _budgetsItems);
         }
 
     }
     
     private void Clear()
     {
-        display = ""; // Rensar inmatningsfältet
+        _display = ""; // Rensar inmatningsfältet
     }
 
     private void Calculate()
@@ -103,12 +103,12 @@
         try
         {
             // Utvärdera uttrycket med hjälp av DataTable.Compute
-            var result = new System.Data.DataTable().Compute(display, null);
-            display = result.ToString();
+            var result = new System.Data.DataTable().Compute(_display, null);
+            _display = result.ToString();
         }
         catch
         {
-            display = "Fel i uttrycket!";
+            _display = "Fel i uttrycket!";
         }
     }
 }

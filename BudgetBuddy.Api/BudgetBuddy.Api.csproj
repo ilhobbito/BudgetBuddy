@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BudgetBuddy.Lib\BudgetBuddy.Lib.csproj" />
+      <ProjectReference Include="..\BudgetBuddy.Blazor\BudgetBuddy.csproj" />
     </ItemGroup>
 
 </Project>
