@@ -31,7 +31,6 @@
     <ItemGroup>
       <ProjectReference Include="..\BudgetBuddy.Api\BudgetBuddy.Api.csproj" />
       <ProjectReference Include="..\BudgetBuddy.Blazor\BudgetBuddy.csproj" />
-      <ProjectReference Include="..\BudgetBuddy.Lib\BudgetBuddy.Lib.csproj" />
     </ItemGroup>
 
 </Project>

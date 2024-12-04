@@ -6,32 +6,50 @@ namespace BudgetBuddy.Lib.DAL;
 
 public class CategoriesManager
 {
-    public static readonly Uri BaseAddress = new Uri("https://localhost:7107/");
+    private readonly HttpClient _client;
+    public static readonly Uri BaseAddress = new Uri("https://localhost:5231/");
+
+    public CategoriesManager(HttpClient httpClient)
+    {
+        _client = httpClient;
+        _client.BaseAddress = BaseAddress;
+    }
 
     public async Task<List<Category>> GetCategoriesAsync()
     {
-        using (var client = new HttpClient())
+        try
         {
-            client.BaseAddress = BaseAddress;
-            HttpResponseMessage response = await client.GetAsync("api/Categories");
+            HttpResponseMessage response = await _client.GetAsync("api/Categories");
 
             if (response.IsSuccessStatusCode)
             {
                 string responseString = await response.Content.ReadAsStringAsync();
-                List<Category> categories = JsonSerializer.Deserialize<List<Category>>(responseString);
-                return categories;
-            }
+                Console.WriteLine($"Fetched JSON: {responseString}");
 
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                List<Category> categories = JsonSerializer.Deserialize<List<Category>>(responseString, options);
+                return categories ?? new List<Category>();
+            }
+            else
+            {
+                Console.WriteLine($"API request failed with status: {response.StatusCode}");
+                return new List<Category>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in GetCategoriesAsync: {ex.Message}");
             return new List<Category>();
         }
     }
 
     public async Task<Category> GetCategoryByIdAsync(int id)
     {
-        using (var client = new HttpClient())
-        {
-            client.BaseAddress = BaseAddress;
-            HttpResponseMessage response = await client.GetAsync("api/Categories");
+            HttpResponseMessage response = await _client.GetAsync($"api/Categories/{id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -41,7 +59,7 @@ public class CategoriesManager
             }
 
             return null;
-        }
+        
     }
 
     public async Task<HttpResponseMessage> CreateCategoryAsync(Category category)

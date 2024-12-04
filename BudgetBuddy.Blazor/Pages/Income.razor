@@ -2,7 +2,10 @@
 @using BudgetBuddy.Lib.DAL
 @using BudgetBuddy.Models
 @using BudgetBuddy.Services
+@using Microsoft.IdentityModel.Tokens
 @inject BudgetService BudgetService
+@inject BudgetItemManager BudgetItemManager
+@inject CategoriesManager CategoriesManager
 
 <div class="container mt-5">
     <h1 class="mb-4">Inkomster</h1>
@@ -14,16 +17,16 @@
         </div>
         <div class="card-body">
             <EditForm Model="@NewItem" OnValidSubmit="AddBudgetItem" FormName="BudgetForm">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
 
                 <div class="mb-3">
                     <label for="name" class="form-label">Inkomstkälla:</label>
-                    <InputText id="name" class="form-control" @bind-Value="NewItem.Name" />
+                    <InputText id="name" class="form-control" @bind-Value="NewItem.Name"/>
                 </div>
                 <div class="mb-3">
                     <label for="amount" class="form-label">Belopp:</label>
-                    <InputNumber id="amount" class="form-control" @bind-Value="NewItem.Amount" />
+                    <InputNumber id="amount" class="form-control" @bind-Value="NewItem.Amount"/>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Lägg till</button>
@@ -33,7 +36,36 @@
 
     <div class="card">
         <div class="card-header bg-success text-white">
-            <h4>Budgetposter</h4>
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Budgetposter</h4>
+                <div class="d-flex mb-0">
+                    <div class="form-group mb-0 me-2">
+                        <select id="yearSelect" class="form-select" @bind="SelectedYear" @bind:event="onchange">
+                            <option value="">År</option>
+                            @if (Years != null)
+                            {
+                                @foreach (var year in Years)
+                                {
+                                    <option value="@year">@year</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="">No data available</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group mb-0 me-2">
+                        <select id="monthSelect" class="form-select" @bind="SelectedMonth" @bind:event="onchange">
+                            <option value="">Alla månader</option>
+                            @foreach (var month in GetMonths())
+                            {
+                                <option value="@month.Value">@month.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="card-body">
             <table class="table table-striped">
@@ -45,19 +77,33 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var item in BudgetItems.Where(i => i.IsIncome))
+                @if (FilteredBudgetItems != null)
                 {
-                    <tr>
-                        <td>@item.Name</td>
-                        <td>@item.Amount kr</td>
-                        <td>@item.Date.ToShortDateString()</td>
-                    </tr>
+                    @foreach (var item in FilteredBudgetItems)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.Amount kr</td>
+                            <td>@item.Date.ToShortDateString()</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <option value="">No data available</option>
                 }
                 </tbody>
                 <tfoot>
                 <tr>
                     <th>Totalt inkomst:</th>
-                    <th>@BudgetItems.Where(i => i.IsIncome).Sum(i => i.Amount) kr</th>
+                    @if (FilteredBudgetItems != null)
+                    {
+                        <th>@FilteredBudgetItems.Sum(i => i.Amount) kr</th>
+                    }
+                    else
+                    {
+                        <option value="">No data available</option>
+                    }
                     <th></th>
                 </tr>
                 </tfoot>
@@ -67,32 +113,95 @@
 </div>
 
 @code {
+
+    private int? _selectedYear;
+
+    public int? SelectedYear
+    {
+        get => _selectedYear;
+        set
+        {
+            _selectedYear = value;
+            _ = OnFilterChanged(); // Trigger filtering whenever the year changes
+        }
+    }
+    private int? _selectedMonth;
+
+    public int? SelectedMonth
+    {
+        get => _selectedMonth;
+        set
+        {
+            _selectedMonth = value;
+            _ = OnFilterChanged(); // Trigger filtering whenever the year changes
+        }
+    }
     private BudgetItem NewItem = new();
     private List<Category> Categories = new();
-    private readonly CategoriesManager _categoriesManager;
+    //private string SelectedMonth { get; set; } = "";
+    private List<BudgetItem> FilteredBudgetItems { get; set; }
 
-    private List<BudgetItem> BudgetItems;
-    private readonly BudgetItemManager _budgetItemManager;
-    
-     protected override async Task OnInitializedAsync()
-     {
-         Categories = await _categoriesManager.GetCategoriesAsync();
-         BudgetItems = await _budgetItemManager.GetBudgetItemsAsync();
-     }
+    private IEnumerable<int> Years { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        Categories = await CategoriesManager.GetCategoriesAsync(); 
+        await UpdatedFilters();
+        Years = await GetYears();
+    }
+
+    private async Task UpdatedFilters()
+    {
+       FilteredBudgetItems =  await GetFilteredBudgetItems();
+    }
+    private async Task OnFilterChanged()
+    {
+        await UpdatedFilters();
+        StateHasChanged();
+    }
     private void AddBudgetItem()
     {
         NewItem.IsIncome = true;
-        
-        NewItem = new BudgetItem
-        {
-            Name = string.Empty,
-            Amount = 0,
-            IsIncome = true,
-            Date = DateTime.Now,
-            CategoryId = 1
-        };
-        
-        _budgetItemManager.CreateBudgetItemAsync(NewItem);
+        NewItem.Date = DateTime.Now;
+        BudgetItemManager.CreateBudgetItemAsync(NewItem);
+        NewItem = new BudgetItem();
     }
+
+    private async Task<List<BudgetItem>> GetFilteredBudgetItems()
+    {
+        var items = await BudgetItemManager.GetBudgetItemsAsync();
+        items = items.Where(i => i.IsIncome).ToList();
+        if (SelectedMonth != null || SelectedMonth.ToString() != "")
+        {
+            var month = int.Parse(SelectedMonth.ToString());
+            items = items.Where(i => i.Date.Month == month).ToList();
+        }
+
+        if (SelectedYear != null ||SelectedYear.ToString() != "")
+        {
+            var year = int.Parse(SelectedYear.ToString());
+            items = items.Where(i => i.Date.Year == year).ToList();
+        }
+        return items;
+    }
+
+    private IEnumerable<(string Text, string Value)> GetMonths()
+    {
+        return Enumerable.Range(1, 12).Select(m => (
+            Text: new DateTime(1, m, 1).ToString("MMMM"),
+            Value: m.ToString()
+        ));
+    }
+
+    private async Task<IEnumerable<int>> GetYears()
+    {
+        var items = await BudgetItemManager.GetBudgetItemsAsync();
+        var years = items
+            .Where(i => i.IsIncome == true)
+            .Select(i => i.Date.Year)
+            .Distinct()
+            .OrderByDescending(y => y);
+        return years;
+    }
+
 }

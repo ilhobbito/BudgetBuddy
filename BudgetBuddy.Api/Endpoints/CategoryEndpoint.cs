@@ -8,11 +8,11 @@ public static class CategoryEndpoint
     public static void AddCategoryEndpoints(this IEndpointRouteBuilder app)
     {
         const string baseUrl = "/api/Categories";
-        
+
         app.MapGet(baseUrl, async (BudgetBuddyContext context) =>
-        {
-            return await context.Categories.ToListAsync(); 
-        }).WithName("GetCategories").WithOpenApi();
+            { 
+                return await context.Categories.ToListAsync();
+            }).WithName("GetCategories").WithOpenApi();
 
         app.MapPost(baseUrl, async (Category category, BudgetBuddyContext context) =>
         {
@@ -33,6 +33,5 @@ public static class CategoryEndpoint
             context.Update(category);
             await context.SaveChangesAsync();
         }).WithName("EditCategories").WithOpenApi();
-
     }
 }

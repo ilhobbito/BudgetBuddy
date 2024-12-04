@@ -24,8 +24,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\BudgetBuddy.Lib\BudgetBuddy.Lib.csproj" />
-  </ItemGroup>
-
 </Project>
