@@ -92,7 +92,7 @@
                             <tr>
                                 <td>@item.Name</td>
                                 <td>@item.Amount kr</td>
-                                <td>@BudgetService.GetCategoryName(item.CategoryId)</td>
+                                <td>@(CategoryName = Categories.Where(c => c.Id == item.CategoryId).Select(c => c.Name).FirstOrDefault())</td>
                                 <td>@item.Date.ToShortDateString()</td>
                             </tr>
                         }
@@ -114,14 +114,16 @@
 
 @code {
     private BudgetItem NewItem = new();
-    private List<Category> Categories = new();
+    private List<Category> Categories { get; set; } = new();
     private string SelectedMonth { get; set; } = "";
     private string SelectedYear { get; set; } = "";
-    private List<BudgetItem> FilteredBudgetItems { get; set; }
-    private IEnumerable<int> Years { get; set; }
+    private List<BudgetItem> FilteredBudgetItems { get; set; } = new();
+    private IEnumerable<int> Years { get; set; } = new List<int>();
+    private string CategoryName { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        
         Categories = await CategoriesManager.GetCategoriesAsync();
         FilteredBudgetItems = await GetFilteredBudgetItems();
         Years = await GetYears();
@@ -139,6 +141,8 @@
             IsIncome = false,
             Date = DateTime.Now
         };
+
+        StateHasChanged();
     }
 
     private async Task<List<BudgetItem>> GetFilteredBudgetItems()

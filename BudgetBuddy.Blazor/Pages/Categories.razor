@@ -69,17 +69,22 @@
     // }
     private Category _newCategory = new();
     private List<Category> _categoryList = new List<Category>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categoryList = await CategoryService.GetCategoriesAsync();
+    }
     
     private async Task AddCategory()
     {
+        await CategoryService.CreateCategoryAsync(_newCategory);
         _categoryList = await CategoryService.GetCategoriesAsync();
-        
-        _newCategory = new Category
-        {
-            Name = string.Empty,
-            BudgetLimit = 0
-        };
-        
-       await CategoryService.CreateCategoryAsync(_newCategory);
+       
+       _newCategory = new Category
+       {
+           Name = string.Empty,
+           BudgetLimit = 0
+       };
     }
 }
