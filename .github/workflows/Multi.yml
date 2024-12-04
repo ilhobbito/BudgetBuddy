@@ -1,31 +1,26 @@
 name: Multi-Plattform-Test
-  
-on:
-  pull_request:
+
+on: 
+  push:
+  workflow_dispatch:
 
 jobs:
-  build:
+  Run-Tests:
     runs-on: ${{ matrix.os }}
-    strategy: 
+    strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        dotnet-version: [7, 8, 9]
-    
+
     steps:
-     - name: checkout code
-       uses: actions/checkout@v4
-     - name: set up .net SDK
-       uses: actions/setup-dotnet@4.1.0
-       with:
-         dotnet-version: ${[ matrix.dotnet-version ]}
+      - name: Print system information
+        run: |
+          echo "Running on ${{ runner.os }} version"
+          if [[ "${{ runner.os }}" == "Linux" ]]; then
+            uname -a 
+          elif [[ "${{ runner.os }}" == "Windows" ]]; then
+            ver
+          elif [[ "${{ runner.os }}" == 
 
-     - name: Restore Dependecies
-       run: dotnet restore
 
-     - name: Build
-       run: dotnet build --configuration Release
-
-     - name: Test
-       run: dotnet test --configuration Release  --nobuild --verbosity normal
     
     
