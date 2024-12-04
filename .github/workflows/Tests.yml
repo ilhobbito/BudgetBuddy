@@ -4,24 +4,37 @@ on:
   push:
   workflow_dispatch:
 
-jobs:      
+jobs:
   Run-Tests:
-    runs-on: ubuntu-latest  
-    
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest] 
+
     steps:
-    - uses: actions/checkout@v4  
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0'
-        
-    - name: Build-project
-      run: dotnet build
-      
-    - name: Check-for-tests
-      run: dotnet test --no-build --list-tests
-      
-    - name: Run-tests
-      run: dotnet test --no-build --logger "console;verbosity=detailed"
-    
-      
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0'
+
+      - name: Build-project
+        run: dotnet build
+
+      - name: Check-for-tests
+        run: dotnet test --no-build --list-tests
+
+      - name: Run-tests
+        run: dotnet test --no-build --logger "console;verbosity=detailed"
+
+      - name: Print system information
+        run: |
+            echo "Running on ${{ runner.os }} version"
+            if [[ "${{ runner.os }}" == "Linux" ]]; then
+              uname -a 
+            elif [[ "${{ runner.os }}" == "Windows" ]]; then
+              ver
+            elif [[ "${{ runner.os }}" == "Darwin" ]]; then
+              sw_vers
+            fi
