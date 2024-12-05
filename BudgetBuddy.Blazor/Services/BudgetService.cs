@@ -40,11 +40,6 @@ public class BudgetService
       
     }
 
-    public async Task AddBudgetItem(BudgetItem budgetItem)
-    {
-        await _budgetItemManager.CreateBudgetItemAsync(budgetItem);
-    }
-
     public async Task <decimal> GetTotalAmount(bool isIncome)
     {
         BudgetItems = await _budgetItemManager.GetBudgetItemsAsync();
@@ -52,26 +47,11 @@ public class BudgetService
             .Where(x => x.IsIncome == isIncome)
             .Sum(x => x.Amount);
     }
-    
+
     public async Task<decimal> GetNetResult()
     {
         var totalIncome = await GetTotalAmount(true);
         var totalExpenses = await GetTotalAmount(false);
         return totalIncome - totalExpenses;
     }
-
-
-    // public async Task<string> AddCategory(Category category)
-    // {
-    //     await _categoriesManager.CreateCategoryAsync(category);
-    //     // Check where the messages pops out and see if it's necessary.
-    //     return category.Name != "" ? category.Name : "Okänd kategori";
-    // }
-    
-    // public async Task<string> GetCategoryName(int categoryId)
-    // {
-    //     var category = await _categoriesManager.GetCategoryByIdAsync(categoryId);
-    //     return category != null ? category.Name : "Okänd kategori";
-    // }
-    
 }
