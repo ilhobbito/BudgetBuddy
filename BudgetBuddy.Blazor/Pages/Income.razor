@@ -39,6 +39,18 @@
                 <h4 class="mb-0">Budgetposter</h4>
                 <div class="d-flex mb-0">
                     <div class="form-group mb-0 me-2">
+                        <select id="categorySelect" class="form-select" @bind="SelectedCategory" @bind:event="onchange">
+                            <option value="">Kategori</option>
+                            @if (Categories != null)
+                            {
+                            @foreach (var category in Categories)
+                            {
+                            <option value="@category.Name">@category.Name</option>
+                            }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group mb-0 me-2">
                         <select id="yearSelect" class="form-select" @bind="SelectedYear" @bind:event="onchange">
                             <option value="">År</option>
                             @if (Years != null)
@@ -47,10 +59,6 @@
                                 {
                                     <option value="@year">@year</option>
                                 }
-                            }
-                            else
-                            {
-                                <option value="">No data available</option>
                             }
                         </select>
                     </div>
@@ -118,6 +126,7 @@
     private List<BudgetItem> FilteredBudgetItems { get; set; }
     private int? _selectedMonth;
     private int? _selectedYear;
+    private string? _selectedCategory;
 
     private IEnumerable<int> Years { get; set; }
 
@@ -161,6 +170,12 @@
             var year = int.Parse(SelectedYear.ToString());
             items = items.Where(i => i.Date.Year == year).ToList();
         }
+
+        if (!string.IsNullOrWhiteSpace(SelectedCategory))
+        {
+            var selectedCategory = Categories.Where(c => c.Name == SelectedCategory).FirstOrDefault();
+            items = items.Where(i => i.CategoryId == selectedCategory.Id).ToList();
+        }
         return items;
     }
 
@@ -202,6 +217,16 @@
         set
         {
             _selectedMonth = value;
+            _ = OnFilterChanged();
+        }
+    }
+
+    public string? SelectedCategory
+    {
+        get => _selectedCategory;
+        set
+        {
+            _selectedCategory = value;
             _ = OnFilterChanged();
         }
     }

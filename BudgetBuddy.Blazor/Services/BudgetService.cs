@@ -33,10 +33,10 @@ public class BudgetService
             await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Studiebidrag", Amount = 1337, IsIncome = true, CategoryId = 1});
             await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Twitch streaming", Amount = 99, IsIncome = true, CategoryId = 1});
             await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Barnbidrag", Amount = 2400, IsIncome = true, CategoryId = 1});
-            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Netflix", Amount = -149, IsIncome = false, CategoryId = 3 });
-            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Disney plus", Amount = -99, IsIncome = false, CategoryId = 3 });
-            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Donken", Amount = -99, IsIncome = false, CategoryId = 2 });
-            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "H&M", Amount = -499, IsIncome = false, CategoryId = 4 });
+            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Netflix", Amount = 149, IsIncome = false, CategoryId = 3 });
+            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Disney plus", Amount = 99, IsIncome = false, CategoryId = 3 });
+            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Donken", Amount = 99, IsIncome = false, CategoryId = 2 });
+            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "H&M", Amount = 499, IsIncome = false, CategoryId = 4 });
         }
       
     }
@@ -53,6 +53,6 @@ public class BudgetService
     {
         var totalIncome = await GetTotalAmount(true);
         var totalExpenses = await GetTotalAmount(false);
-        return totalIncome + totalExpenses;
+        return totalIncome - totalExpenses;
     }
 }
