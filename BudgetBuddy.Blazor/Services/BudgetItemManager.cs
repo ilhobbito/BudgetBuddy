@@ -2,10 +2,11 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using BudgetBuddy.Models;
+using Budgetbuddy.tests.Interfaces;
 
 namespace BudgetBuddy.Lib.DAL;
 
-public class BudgetItemManager
+public class BudgetItemManager : IBudgetItemManager
 {
     private readonly HttpClient _client;
     public static readonly Uri BaseAddress = new Uri("https://localhost:5231/");

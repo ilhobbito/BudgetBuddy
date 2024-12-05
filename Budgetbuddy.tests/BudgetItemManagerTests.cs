@@ -55,7 +55,6 @@ public class BudgetItemManagerTests
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
         });
         var client = new HttpClient(mockHttpMessageHandler);
-
         // Act
         var sutBudgetItemManager = new BudgetItemManager(client);
         var response = await sutBudgetItemManager.CreateBudgetItemAsync(null);
@@ -95,3 +94,4 @@ public interface IBudgetService
 {
     Task<HttpResponseMessage> CreateBudgetItemAsync(BudgetItem budgetItem);
 }
+
