@@ -1,10 +1,12 @@
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using BudgetBuddy.Models;
+using Budgetbuddy.tests.Interfaces;
 
 namespace BudgetBuddy.Lib.DAL;
 
-public class BudgetItemManager
+public class BudgetItemManager : IBudgetItemManager
 {
     private readonly HttpClient _client;
     public static readonly Uri BaseAddress = new Uri("https://localhost:5231/");
@@ -47,16 +49,35 @@ public class BudgetItemManager
     public async Task<HttpResponseMessage> CreateBudgetItemAsync(BudgetItem budgetItem)
     {
         HttpResponseMessage response = null;
-        if (budgetItem == null)
+        if (budgetItem != null)
         {
-            throw new ArgumentNullException("BudgetItem is null");
+            if (string.IsNullOrWhiteSpace(budgetItem.Name))
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    Content = new StringContent("Name cannot be empty.")
+                }; 
+            } 
+            if ( budgetItem.Amount <= 0)
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    Content = new StringContent("Amount cannot be negative.")
+                }; 
+            }
+            var json = JsonSerializer.Serialize(budgetItem);
+            StringContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            response = await _client.PostAsync("api/BudgetItems", httpContent);
+
+            return response;
         }
-
-        var json = JsonSerializer.Serialize(budgetItem);
-        StringContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-        response = await _client.PostAsync("api/BudgetItems", httpContent);
-
-        return response;
+        else
+        {
+            return new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent("Budget item is null")
+            };
+        }
     }
 
     public async Task<HttpResponseMessage> UpdateBudgetItemAsync(BudgetItem budgetItem)
@@ -67,7 +88,6 @@ public class BudgetItemManager
             Console.WriteLine("BudgetItem is null");
             return null;
         }
-
         var json = JsonSerializer.Serialize(budgetItem);
         StringContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
         response = await _client.PutAsync("api/BudgetItems", httpContent);
@@ -83,12 +103,10 @@ public class BudgetItemManager
             Console.WriteLine("BudgetItem is null");
             return null;
         }
-
         var json = JsonSerializer.Serialize(budgetItem);
         StringContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
         response = await _client.DeleteAsync("api/BudgetItems/" + budgetItem.Id);
-
-
+        
         return response;
     }
 }
