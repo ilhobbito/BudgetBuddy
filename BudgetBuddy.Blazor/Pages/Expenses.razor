@@ -9,7 +9,7 @@
 
 <div class="container mt-5">
     <h1 class="mb-4">Utgifter</h1>
-    <p class="text-muted">Här kan du lägga till och hålla koll på dina utgifter.</p>
+    
 
     <div class="row">
         <!-- Add Expense Form -->
@@ -115,11 +115,11 @@
 @code {
     private BudgetItem NewItem = new();
     private List<Category> Categories { get; set; } = new();
-    private string SelectedMonth { get; set; } = "";
-    private string SelectedYear { get; set; } = "";
     private List<BudgetItem> FilteredBudgetItems { get; set; } = new();
     private IEnumerable<int> Years { get; set; } = new List<int>();
     private string CategoryName { get; set; }
+    private int? _selectedMonth;
+    private int? _selectedYear;
 
     protected override async Task OnInitializedAsync()
     {
@@ -131,7 +131,7 @@
 
     private void AddBudgetItem()
     {
-        NewItem.IsIncome = false; // Set item as expense
+        NewItem.IsIncome = false; 
         NewItem.Date = DateTime.Now;
         BudgetItemManager.CreateBudgetItemAsync(NewItem);
         NewItem = new BudgetItem
@@ -149,18 +149,17 @@
     {
         var items = await BudgetItemManager.GetBudgetItemsAsync();
         items = items.Where(i => i.IsIncome == false).ToList();
-        
-        if (!string.IsNullOrEmpty(SelectedMonth))
+        if (SelectedMonth != null || SelectedMonth.ToString() != "")
         {
-            var month = int.Parse(SelectedMonth);
+            var month = int.Parse(SelectedMonth.ToString());
             items = items.Where(i => i.Date.Month == month).ToList();
         }
-        if (!string.IsNullOrEmpty(SelectedYear))
+
+        if (SelectedYear != null ||SelectedYear.ToString() != "")
         {
-            var year = int.Parse(SelectedYear);
+            var year = int.Parse(SelectedYear.ToString());
             items = items.Where(i => i.Date.Year == year).ToList();
         }
-
         return items;
     }
 
@@ -182,4 +181,37 @@
             .OrderByDescending(y => y);
         return years;
     }
+    private async Task UpdatedFilters()
+    {
+        FilteredBudgetItems =  await GetFilteredBudgetItems();
+    }
+    private async Task OnFilterChanged()
+    {
+        await UpdatedFilters();
+        StateHasChanged();
+    }
+    
+    
+
+    public int? SelectedYear
+    {
+        get => _selectedYear;
+        set
+        {
+            _selectedYear = value;
+            _ = OnFilterChanged();
+        }
+    }
+    
+
+    public int? SelectedMonth
+    {
+        get => _selectedMonth;
+        set
+        {
+            _selectedMonth = value;
+            _ = OnFilterChanged();
+        }
+    }
+    
 }

@@ -9,7 +9,6 @@
 
 <div class="container mt-5">
     <h1 class="mb-4">Inkomster</h1>
-    <p class="text-muted">Här kan du lägga till och hålla koll på dina inkomster.</p>
 
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
@@ -114,32 +113,11 @@
 
 @code {
 
-    private int? _selectedYear;
-
-    public int? SelectedYear
-    {
-        get => _selectedYear;
-        set
-        {
-            _selectedYear = value;
-            _ = OnFilterChanged(); // Trigger filtering whenever the year changes
-        }
-    }
-    private int? _selectedMonth;
-
-    public int? SelectedMonth
-    {
-        get => _selectedMonth;
-        set
-        {
-            _selectedMonth = value;
-            _ = OnFilterChanged(); // Trigger filtering whenever the year changes
-        }
-    }
     private BudgetItem NewItem = new();
     private List<Category> Categories = new();
-    //private string SelectedMonth { get; set; } = "";
     private List<BudgetItem> FilteredBudgetItems { get; set; }
+    private int? _selectedMonth;
+    private int? _selectedYear;
 
     private IEnumerable<int> Years { get; set; }
 
@@ -163,6 +141,7 @@
     {
         NewItem.IsIncome = true;
         NewItem.Date = DateTime.Now;
+        NewItem.CategoryId = 0;
         BudgetItemManager.CreateBudgetItemAsync(NewItem);
         NewItem = new BudgetItem();
     }
@@ -202,6 +181,29 @@
             .Distinct()
             .OrderByDescending(y => y);
         return years;
+    }
+    
+    
+
+    public int? SelectedYear
+    {
+        get => _selectedYear;
+        set
+        {
+            _selectedYear = value;
+            _ = OnFilterChanged();
+        }
+    }
+    
+
+    public int? SelectedMonth
+    {
+        get => _selectedMonth;
+        set
+        {
+            _selectedMonth = value;
+            _ = OnFilterChanged();
+        }
     }
 
 }

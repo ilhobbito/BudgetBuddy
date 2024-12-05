@@ -57,7 +57,7 @@ public class BudgetService
     {
         var totalIncome = await GetTotalAmount(true);
         var totalExpenses = await GetTotalAmount(false);
-        return totalIncome - totalExpenses;
+        return totalIncome + totalExpenses;
     }
 
 
