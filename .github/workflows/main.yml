@@ -17,7 +17,7 @@ jobs:
         dotnet-version: '8'
         
     - name: Build-project
-      run: dotnet publish gitdemo.sln --output ./build
+      run: dotnet publish BudgetBuddy.sln --output ./build
       
     - name: Upload artifact
       uses: actions/upload-artifact@v4.3.3
