@@ -90,8 +90,5 @@ public class BudgetItemManagerTests
     }
 }
 
-public interface IBudgetService
-{
-    Task<HttpResponseMessage> CreateBudgetItemAsync(BudgetItem budgetItem);
-}
+
 
