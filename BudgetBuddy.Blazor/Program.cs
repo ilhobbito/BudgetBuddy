@@ -13,12 +13,11 @@ builder.Services.AddScoped<BudgetService>();
 builder.Services.AddScoped<ICategoriesManager, CategoriesManager>();
 builder.Services.AddScoped<IBudgetItemManager, BudgetItemManager>();
 
-
-
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddScoped<BudgetItemManager>();
 builder.Services.AddScoped<CategoriesManager>();
-
+builder.Services.AddScoped<ICategoriesManager, CategoriesManager>();
+builder.Services.AddScoped<IBudgetItemManager, BudgetItemManager>();
 
 await builder.Build().RunAsync();
 

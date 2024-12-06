@@ -18,7 +18,6 @@ public class MockHttpMessageHandler : HttpMessageHandler
     {
         return _sendAsyncFunc(request, cancellationToken);
     }
-
     public virtual Task<HttpResponseMessage> Handle(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));

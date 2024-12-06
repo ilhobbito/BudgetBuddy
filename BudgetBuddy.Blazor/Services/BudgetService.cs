@@ -21,7 +21,6 @@ public class BudgetService
         
         if (categories.Count() <= 0)
         {
-            await  _categoriesManager.CreateCategoryAsync(new Category() { Name = "Inkomst"});
             await  _categoriesManager.CreateCategoryAsync(new Category() { Name = "Mat", BudgetLimit = 5000});
             await  _categoriesManager.CreateCategoryAsync(new Category() { Name = "Nöjen", BudgetLimit = 2500});
             await  _categoriesManager.CreateCategoryAsync(new Category() { Name = "Kläder", BudgetLimit = 1500});
@@ -29,10 +28,10 @@ public class BudgetService
         }
         if (budgetItems.Count() <= 0)
         {
-            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Lön", Amount = 2000, IsIncome = true, CategoryId = 1 });
-            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Studiebidrag", Amount = 1337, IsIncome = true, CategoryId = 1});
-            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Twitch streaming", Amount = 99, IsIncome = true, CategoryId = 1});
-            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Barnbidrag", Amount = 2400, IsIncome = true, CategoryId = 1});
+            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Lön", Amount = 2000, IsIncome = true});
+            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Studiebidrag", Amount = 1337, IsIncome = true});
+            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Twitch streaming", Amount = 99, IsIncome = true});
+            await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Barnbidrag", Amount = 2400, IsIncome = true });
             await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Netflix", Amount = 149, IsIncome = false, CategoryId = 3 });
             await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Disney plus", Amount = 99, IsIncome = false, CategoryId = 3 });
             await _budgetItemManager.CreateBudgetItemAsync(new BudgetItem() { Name = "Donken", Amount = 99, IsIncome = false, CategoryId = 2 });
