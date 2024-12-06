@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        dotnet-version: '8'
+        dotnet-version: '9'
     - name: Build-project
       run: dotnet build
       
@@ -24,6 +24,6 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8'
+          dotnet-version: '9'
       - name: Run-tests
         run: dotnet test --no-build --logger "console;verbosity=detailed"
