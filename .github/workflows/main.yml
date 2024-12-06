@@ -1,4 +1,4 @@
-name: Test
+name: test
 
 on: 
   push:
@@ -7,13 +7,34 @@ on:
 jobs:
   Build-Project:
     runs-on: ubuntu-latest
-    
     steps:
+    - name: checkout repo
     - uses: actions/checkout@v4
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v4.1.0
       with:
-        dotnet-version: '8.0'
+        dotnet-version: '8'
+        
     - name: Build-project
-      run: dotnet build
+      run: dotnet publish gitdemo.sln --output ./build
+
+  
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4.3.3
+      with: 
+          name: build-artifact
+          path: ./build
+    - name: List all
+      run: ls -R ./build
+
+    - name: Download artifact
+      uses: actions/download-artifact@v4.1.8
+      with:
+         name: build-artifact
+         path: ./build
+    - name: List all
+      run: ls -R ./build
+    
       
   Run-Tests:
     runs-on: ubuntu-latest
