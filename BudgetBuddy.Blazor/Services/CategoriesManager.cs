@@ -15,7 +15,7 @@ public class CategoriesManager : ICategoriesManager
         _client = httpClient;
         _client.BaseAddress = BaseAddress;
     }
-
+    //TODO: DO tests for these
     public async Task<List<Category>> GetCategoriesAsync()
     {
         try
