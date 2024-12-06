@@ -13,7 +13,7 @@ jobs:
       with:
         dotnet-version: '8'
     - name: Build-project
-      run: dotnet ./build
+      run: dotnet publish BudgetBuddy.sln --output ./build
       
   Run-Tests:
     runs-on: ubuntu-latest
