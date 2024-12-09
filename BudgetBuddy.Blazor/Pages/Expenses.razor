@@ -9,10 +9,9 @@
 
 <div class="container mt-5">
     <h1 class="mb-4">Utgifter</h1>
-    <p class="text-muted">Här kan du lägga till och hålla koll på dina utgifter.</p>
+    
 
     <div class="row">
-        <!-- Add Expense Form -->
         <div class="col-md-12">
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
@@ -47,14 +46,25 @@
                 </div>
             </div>
         </div>
-
-        <!-- Expenses Table -->
+        
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-success text-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <h4 class="mb-0">Budgetposter</h4>
                         <div class="d-flex mb-0">
+                            <div class="form-group mb-0 me-2">
+                                <select id="categorySelect" class="form-select" @bind="SelectedCategory" @bind:event="onchange">
+                                    <option value="">Kategori</option>
+                                    @if (Categories != null)
+                                    {
+                                        @foreach (var category in Categories)
+                                        {
+                                            <option value="@category.Name">@category.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
                             <div class="form-group mb-0 me-2">
                                 <select id="yearSelect" class="form-select" @bind="SelectedYear">
                                     <option value="">År</option>
@@ -91,7 +101,7 @@
                         {
                             <tr>
                                 <td>@item.Name</td>
-                                <td>@item.Amount kr</td>
+                                <td>-@item.Amount kr</td>
                                 <td>@(CategoryName = Categories.Where(c => c.Id == item.CategoryId).Select(c => c.Name).FirstOrDefault())</td>
                                 <td>@item.Date.ToShortDateString()</td>
                             </tr>
@@ -100,7 +110,7 @@
                         <tfoot>
                         <tr>
                             <th>Totala utgifter:</th>
-                            <th>@FilteredBudgetItems.Sum(i => i.Amount) kr</th>
+                            <th>-@FilteredBudgetItems.Sum(i => i.Amount) kr</th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -115,25 +125,26 @@
 @code {
     private BudgetItem NewItem = new();
     private List<Category> Categories { get; set; } = new();
-    private string SelectedMonth { get; set; } = "";
-    private string SelectedYear { get; set; } = "";
     private List<BudgetItem> FilteredBudgetItems { get; set; } = new();
     private IEnumerable<int> Years { get; set; } = new List<int>();
     private string CategoryName { get; set; }
+    private int? _selectedMonth;
+    private int? _selectedYear;
+    private string? _selectedCategory;
 
     protected override async Task OnInitializedAsync()
     {
-        
         Categories = await CategoriesManager.GetCategoriesAsync();
         FilteredBudgetItems = await GetFilteredBudgetItems();
         Years = await GetYears();
     }
 
-    private void AddBudgetItem()
+    private async Task AddBudgetItem()
     {
-        NewItem.IsIncome = false; // Set item as expense
+        NewItem.IsIncome = false; 
         NewItem.Date = DateTime.Now;
-        BudgetItemManager.CreateBudgetItemAsync(NewItem);
+        await BudgetItemManager.CreateBudgetItemAsync(NewItem);
+        FilteredBudgetItems = await GetFilteredBudgetItems();
         NewItem = new BudgetItem
         {
             Name = string.Empty,
@@ -141,7 +152,7 @@
             IsIncome = false,
             Date = DateTime.Now
         };
-
+        
         StateHasChanged();
     }
 
@@ -149,18 +160,21 @@
     {
         var items = await BudgetItemManager.GetBudgetItemsAsync();
         items = items.Where(i => i.IsIncome == false).ToList();
-        
-        if (!string.IsNullOrEmpty(SelectedMonth))
+        if (SelectedMonth != null || SelectedMonth.ToString() != "")
         {
-            var month = int.Parse(SelectedMonth);
+            var month = int.Parse(SelectedMonth.ToString());
             items = items.Where(i => i.Date.Month == month).ToList();
         }
-        if (!string.IsNullOrEmpty(SelectedYear))
+        if (SelectedYear != null ||SelectedYear.ToString() != "")
         {
-            var year = int.Parse(SelectedYear);
+            var year = int.Parse(SelectedYear.ToString());
             items = items.Where(i => i.Date.Year == year).ToList();
         }
-
+        if (!string.IsNullOrWhiteSpace(SelectedCategory))
+        {
+            var selectedCategory = Categories.Where(c => c.Name == SelectedCategory).FirstOrDefault();
+            items = items.Where(i => i.CategoryId == selectedCategory.Id).ToList();
+        }
         return items;
     }
 
@@ -182,4 +196,46 @@
             .OrderByDescending(y => y);
         return years;
     }
+    private async Task UpdatedFilters()
+    {
+        FilteredBudgetItems =  await GetFilteredBudgetItems();
+    }
+    private async Task OnFilterChanged()
+    {
+        await UpdatedFilters();
+        StateHasChanged();
+    }
+    
+    
+
+    public int? SelectedYear
+    {
+        get => _selectedYear;
+        set
+        {
+            _selectedYear = value;
+            _ = OnFilterChanged();
+        }
+    }
+    
+
+    public int? SelectedMonth
+    {
+        get => _selectedMonth;
+        set
+        {
+            _selectedMonth = value;
+            _ = OnFilterChanged();
+        }
+    }
+    public string? SelectedCategory
+    {
+        get => _selectedCategory;
+        set
+        {
+            _selectedCategory = value;
+            _ = OnFilterChanged();
+        }
+    }
+    
 }

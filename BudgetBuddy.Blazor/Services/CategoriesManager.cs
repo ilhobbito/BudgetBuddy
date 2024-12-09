@@ -1,10 +1,13 @@
 using System.Text;
 using System.Text.Json;
 using BudgetBuddy.Models;
+using Budgetbuddy.tests.Interfaces;
+using System.Net.Http;
+using System.Net;
 
 namespace BudgetBuddy.Lib.DAL;
 
-public class CategoriesManager
+public class CategoriesManager : ICategoriesManager
 {
     private readonly HttpClient _client;
     public static readonly Uri BaseAddress = new Uri("https://localhost:5231/");
@@ -14,7 +17,8 @@ public class CategoriesManager
         _client = httpClient;
         _client.BaseAddress = BaseAddress;
     }
-
+    //TODO: DO tests for these
+    //Right?
     public async Task<List<Category>> GetCategoriesAsync()
     {
         try
@@ -62,25 +66,44 @@ public class CategoriesManager
         
     }
 
+    //public async Task<HttpResponseMessage> CreateCategoryAsync(Category category)
+    //{
+    //    HttpResponseMessage response = null;
+    //    if (category != null)
+    //    {
+    //        using (var client = new HttpClient())
+    //        {
+    //            client.BaseAddress = BaseAddress;
+    //            var json = JsonSerializer.Serialize(category);
+    //            StringContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+    //            response = await client.PostAsync("api/Categories", httpContent);
+    //        }
+    //    }
+    //    else
+    //    {
+    //        Console.WriteLine("Category is null");
+    //    }
+    //    return response;
+    //}
+
     public async Task<HttpResponseMessage> CreateCategoryAsync(Category category)
     {
-        HttpResponseMessage response = null;
-        if (category != null)
-        {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = BaseAddress;
-                var json = JsonSerializer.Serialize(category);
-                StringContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-                response = await client.PostAsync("api/Categories", httpContent);
-            }
-        }
-        else
+
+        if (category == null)
         {
             Console.WriteLine("Category is null");
+            return new HttpResponseMessage(HttpStatusCode.BadRequest);
         }
+
+        var json = JsonSerializer.Serialize(category);
+        var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await _client.PostAsync("api/Categories", httpContent);
         return response;
     }
+
+
+
 
     public async Task<HttpResponseMessage> UpdateCategoryAsync(Category category)
     {
