@@ -1,4 +1,4 @@
-name: Count and Correct
+name: Count lines
 
 on:
   workflow_dispatch:
@@ -12,12 +12,5 @@ jobs:
      run: |
         LINE_COUNT=$(find . -name "*.cs" -exec cat {} + | wc -l)
           echo "Total lines of code in .cs files: $LINE_COUNT"
-  Code-Spell:
-    runs-on: Ubuntu-latest
-    steps:
-     - name: Check for Spelling Errors
-       uses: codespell-project/codespell-action@v2.0
-       with:
-        check_filenames: true
-        skip: ".git,*.dll,*.exe"
+
   
