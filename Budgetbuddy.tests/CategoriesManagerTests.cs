@@ -32,7 +32,6 @@ public class CategoriesManagerTests
         {
             Name = "TestCategory",
             BudgetLimit = 10000
-                
         };
 
         HttpResponseMessage expectedResponse = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
@@ -129,7 +128,7 @@ public class CategoriesManagerTests
     [Theory]
     [InlineData("", 10000)]
     [InlineData("Test", -1000)]   
-    [InlineData("", -1000)]        
+    [InlineData(null, -1000)]        
     public async Task ShouldReturnBadRequestForInvalidCategoryInputs(string name, int budgetLimit)
     {
         var mockHttpHandler = new MockHttpMessageHandler((request, cancellationToken) =>
