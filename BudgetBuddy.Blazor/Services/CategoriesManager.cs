@@ -2,6 +2,8 @@ using System.Text;
 using System.Text.Json;
 using BudgetBuddy.Models;
 using Budgetbuddy.tests.Interfaces;
+using System.Net.Http;
+using System.Net;
 
 namespace BudgetBuddy.Lib.DAL;
 
@@ -64,25 +66,44 @@ public class CategoriesManager : ICategoriesManager
         
     }
 
+    //public async Task<HttpResponseMessage> CreateCategoryAsync(Category category)
+    //{
+    //    HttpResponseMessage response = null;
+    //    if (category != null)
+    //    {
+    //        using (var client = new HttpClient())
+    //        {
+    //            client.BaseAddress = BaseAddress;
+    //            var json = JsonSerializer.Serialize(category);
+    //            StringContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+    //            response = await client.PostAsync("api/Categories", httpContent);
+    //        }
+    //    }
+    //    else
+    //    {
+    //        Console.WriteLine("Category is null");
+    //    }
+    //    return response;
+    //}
+
     public async Task<HttpResponseMessage> CreateCategoryAsync(Category category)
     {
-        HttpResponseMessage response = null;
-        if (category != null)
-        {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = BaseAddress;
-                var json = JsonSerializer.Serialize(category);
-                StringContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-                response = await client.PostAsync("api/Categories", httpContent);
-            }
-        }
-        else
+
+        if (category == null)
         {
             Console.WriteLine("Category is null");
+            return new HttpResponseMessage(HttpStatusCode.BadRequest);
         }
+
+        var json = JsonSerializer.Serialize(category);
+        var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await _client.PostAsync("api/Categories", httpContent);
         return response;
     }
+
+
+
 
     public async Task<HttpResponseMessage> UpdateCategoryAsync(Category category)
     {
