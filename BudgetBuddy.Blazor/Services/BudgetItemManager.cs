@@ -19,16 +19,34 @@ public class BudgetItemManager : IBudgetItemManager
 
     public async Task<List<BudgetItem>> GetBudgetItemsAsync()
     {
-        HttpResponseMessage response = await _client.GetAsync("api/BudgetItems");
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            string responseString = await response.Content.ReadAsStringAsync();
-            List<BudgetItem> budgetItems = JsonSerializer.Deserialize<List<BudgetItem>>(responseString);
-            return budgetItems;
-        }
+            HttpResponseMessage response = await _client.GetAsync("api/BudgetItems");
 
-        return new List<BudgetItem>();
+            if (response.IsSuccessStatusCode)
+            {
+                string responseString = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Fetched JSON: {responseString}");
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                List<BudgetItem> budgetItems = JsonSerializer.Deserialize<List<BudgetItem>>(responseString, options);
+                return budgetItems ?? new List<BudgetItem>();
+            }
+            else
+            {
+                Console.WriteLine($"API request failed with status: {response.StatusCode}");
+                return new List<BudgetItem>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in GetCategoriesAsync: {ex.Message}");
+            return new List<BudgetItem>();
+        }
     }
 
 

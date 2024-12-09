@@ -1,0 +1,30 @@
+name: Test
+
+on: 
+  push:
+  workflow_dispatch:
+
+jobs:      
+  Run-Tests:
+    runs-on: ubuntu-latest  
+    
+    steps:
+    - uses: actions/checkout@v4  
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0'
+        
+    - name: Build-project
+      run: dotnet build
+
+    - name: Start API server 
+      run: dotnet run --project BudgetBuddy.Api --urls=http://localhost:5231 & sleep 15 # Wait for the server to start
+      
+    - name: Check-for-tests
+      run: dotnet test --no-build --list-tests
+      
+    - name: Run-tests
+      run: dotnet test --no-build --logger "console;verbosity=detailed"
+    
+      
