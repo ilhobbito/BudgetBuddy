@@ -43,6 +43,15 @@ public class BudgetService
     public async Task <decimal> GetTotalAmount(bool isIncome)
     {
         BudgetItems = await _budgetItemManager.GetBudgetItemsAsync();
+        if (BudgetItems.Any(b => b.Amount < 0))
+        {
+            foreach (var negativeItem in BudgetItems.Where(b => b.Amount < 0))
+            {
+                Console.WriteLine($"{negativeItem.Name}: {negativeItem.Amount}");
+            }
+            throw new ArgumentOutOfRangeException(nameof(BudgetItems), "Budget items cannot be negative");
+            
+        }
         return BudgetItems
             .Where(x => x.IsIncome == isIncome)
             .Sum(x => x.Amount);
