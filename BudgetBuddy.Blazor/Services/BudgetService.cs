@@ -1,6 +1,7 @@
 using BudgetBuddy.Lib.DAL;
 using BudgetBuddy.Models;
 using Budgetbuddy.tests.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BudgetBuddy.Services;
 
@@ -43,6 +44,10 @@ public class BudgetService
     public async Task <decimal> GetTotalAmount(bool isIncome)
     {
         BudgetItems = await _budgetItemManager.GetBudgetItemsAsync();
+        if (BudgetItems.Select(x => x.Name).ToList().Contains("") ||  BudgetItems.Select(x => x.Name).ToList().Contains(null))
+        {
+            throw new ArgumentException("Items must have a name");
+        }
         if (BudgetItems.Any(b => b.Amount < 0))
         {
             foreach (var negativeItem in BudgetItems.Where(b => b.Amount < 0))
@@ -50,7 +55,6 @@ public class BudgetService
                 Console.WriteLine($"{negativeItem.Name}: {negativeItem.Amount}");
             }
             throw new ArgumentOutOfRangeException(nameof(BudgetItems), "Budget items cannot be negative");
-            
         }
         return BudgetItems
             .Where(x => x.IsIncome == isIncome)

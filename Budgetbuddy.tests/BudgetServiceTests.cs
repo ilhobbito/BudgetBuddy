@@ -95,7 +95,29 @@ public class BudgetServiceTests
             var netSum = await service.GetNetResult();
             Assert.Equal(total, netSum);
         }
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public async Task TestIfNameCanBeEmptyOrNull(string name)
+    {
+        // Arrange
+        var mockBudgetItemManager = new Mock<IBudgetItemManager>();
+        var budgetItems = new List<BudgetItem>
+        {
+            new BudgetItem() { Name = name, Amount = 50, IsIncome = true },
+            new BudgetItem() { Name = name, Amount = 25, IsIncome = false },
+        };
+        mockBudgetItemManager
+            .Setup(m => m.GetBudgetItemsAsync())
+            .ReturnsAsync(budgetItems);
         
+        var service = new BudgetService(null, mockBudgetItemManager.Object);
+        // Act
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => service.GetNetResult());
         
+        // Assert
+        Assert.Contains("Items must have a name", exception.Message);
     }
 }
