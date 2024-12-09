@@ -1,0 +1,23 @@
+name: Count and Correct
+
+on:
+  workflow_dispatch:
+
+jobs:
+  Count-Code:
+   runs-on: Ubuntu-latest
+   steps:
+   - uses: actions/checkout@v4
+   - name: Count Lines of Code
+     run: |
+        LINE_COUNT=$(find . -name "*.cs" -exec cat {} + | wc -l)
+          echo "Total lines of code in .cs files: $LINE_COUNT"
+  Code-Spell:
+    runs-on: Ubuntu-latest
+    steps:
+     - name: Check for Spelling Errors
+       uses: codespell-project/codespell-action@v2.0
+       with:
+        check_filenames: true
+        skip: ".git,*.dll,*.exe"
+  
