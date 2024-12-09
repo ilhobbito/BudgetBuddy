@@ -19,7 +19,7 @@ jobs:
       run: dotnet build
 
     - name: Start API server 
-      run: dotnet run --project BudgetBuddy.Api --urls=http://localhost:5231 & sleep 5 # Wait for the server to start
+      run: dotnet run --project BudgetBuddy.Api --urls=http://localhost:5231 & sleep 15 # Wait for the server to start
       
     - name: Check-for-tests
       run: dotnet test --no-build --list-tests
