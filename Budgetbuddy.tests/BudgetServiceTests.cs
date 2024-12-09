@@ -47,7 +47,6 @@ public class BudgetServiceTests
             new BudgetItem() { Name = "NegativeTest 1", Amount = 5, IsIncome = false },
             new BudgetItem() { Name = "NegativeTest 2", Amount = 5, IsIncome = false },
             new BudgetItem() { Name = "NegativeTest 3", Amount = 5, IsIncome = false }
-            
         };
         mockBudgetItemManager
             .Setup(m => m.GetBudgetItemsAsync())
