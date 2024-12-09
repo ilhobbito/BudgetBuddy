@@ -1,16 +1,27 @@
-name: Count lines
+name: Count lines and TODOs
 
 on:
   workflow_dispatch:
 
 jobs:
   Count-Code:
-   runs-on: Ubuntu-latest
-   steps:
-   - uses: actions/checkout@v4
-   - name: Count Lines of Code
-     run: |
-        LINE_COUNT=$(find . -name "*.cs" -exec cat {} + | wc -l)
-          echo "Total lines of code in .cs files: $LINE_COUNT"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
 
-  
+    - name: Count Lines of Code
+      run: |
+        LINE_COUNT=$(find . -name "*.cs" -exec cat {} + | wc -l)
+        echo "Total lines of code in .cs files: $LINE_COUNT"
+        echo "LINES_COUNT=$LINE_COUNT" >> $GITHUB_ENV
+
+    - name: Count TODOs
+      run: |
+        TODO_COUNT=$(grep -rnw '.' -e 'TODO' --include=\*.cs | wc -l)
+        echo "Total TODOs in .cs files: $TODO_COUNT"
+        echo "TODO_COUNT=$TODO_COUNT" >> $GITHUB_ENV
+
+    - name: Output Results
+      run: |
+        echo "There are $LINES_COUNT lines of code in .cs files."
+        echo "There are $TODO_COUNT TODOs in .cs files."
