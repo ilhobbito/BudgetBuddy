@@ -58,19 +58,10 @@
     </div>
 </div>
 
-
 @code {
-    // private readonly CategoriesManager _categoriesManager;
-    //
-    //
-    // public Categories(CategoriesManager categoriesManager)
-    // {
-    //     _categoriesManager = categoriesManager;
-    // }
     private Category _newCategory = new();
-    private List<Category> _categoryList = new List<Category>();
-
-
+    private List<Category> _categoryList = new();
+    
     protected override async Task OnInitializedAsync()
     {
         _categoryList = await CategoryService.GetCategoriesAsync();

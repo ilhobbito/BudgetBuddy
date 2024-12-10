@@ -9,8 +9,6 @@
 
 <div class="container mt-5">
     <h1 class="mb-4">Utgifter</h1>
-    
-
     <div class="row">
         <div class="col-md-12">
             <div class="card mb-4">
@@ -18,29 +16,28 @@
                     <h4>Lägg till utgift</h4>
                 </div>
                 <div class="card-body">
-                    <EditForm Model="@NewItem" OnValidSubmit="AddBudgetItem" FormName="BudgetForm">
+                    <EditForm Model="@_newItem" OnValidSubmit="AddBudgetItem" FormName="BudgetForm">
                         <DataAnnotationsValidator/>
                         <ValidationSummary/>
 
                         <div class="mb-3">
                             <label for="name" class="form-label">Utgiftskälla:</label>
-                            <InputText id="name" class="form-control" @bind-Value="NewItem.Name"/>
+                            <InputText id="name" class="form-control" @bind-Value="_newItem.Name"/>
                         </div>
                         <div class="mb-3">
                             <label for="amount" class="form-label">Belopp:</label>
-                            <InputNumber id="amount" class="form-control" @bind-Value="NewItem.Amount"/>
+                            <InputNumber id="amount" class="form-control" @bind-Value="_newItem.Amount"/>
                         </div>
                         <div class="mb-3">
                             <label for="category" class="form-label">Kategori:</label>
-                            <InputSelect id="category" class="form-control" @bind-Value="NewItem.CategoryId">
+                            <InputSelect id="category" class="form-control" @bind-Value="_newItem.CategoryId">
                                 <option value="">Välj en kategori</option>
-                                @foreach (var category in Categories)
+                                @foreach (var category in _categories)
                                 {
                                     <option value="@category.Id">@category.Name</option>
                                 }
                             </InputSelect>
                         </div>
-
                         <button type="submit" class="btn btn-primary">Lägg till</button>
                     </EditForm>
                 </div>
@@ -56,19 +53,16 @@
                             <div class="form-group mb-0 me-2">
                                 <select id="categorySelect" class="form-select" @bind="SelectedCategory" @bind:event="onchange">
                                     <option value="">Kategori</option>
-                                    @if (Categories != null)
+                                    @foreach (var category in _categories)
                                     {
-                                        @foreach (var category in Categories)
-                                        {
-                                            <option value="@category.Name">@category.Name</option>
-                                        }
+                                        <option value="@category.Name">@category.Name</option>
                                     }
                                 </select>
                             </div>
                             <div class="form-group mb-0 me-2">
                                 <select id="yearSelect" class="form-select" @bind="SelectedYear">
                                     <option value="">År</option>
-                                    @foreach (var year in Years)
+                                    @foreach (var year in _years)
                                     {
                                         <option value="@year">@year</option>
                                     }
@@ -97,12 +91,12 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach (var item in FilteredBudgetItems)
+                        @foreach (var item in _filteredBudgetItems)
                         {
                             <tr>
                                 <td>@item.Name</td>
                                 <td>-@item.Amount kr</td>
-                                <td>@(CategoryName = Categories.Where(c => c.Id == item.CategoryId).Select(c => c.Name).FirstOrDefault())</td>
+                                <td>@(_categoryName = _categories.Where(c => c.Id == item.CategoryId).Select(c => c.Name).FirstOrDefault())</td>
                                 <td>@item.Date.ToShortDateString()</td>
                             </tr>
                         }
@@ -110,7 +104,7 @@
                         <tfoot>
                         <tr>
                             <th>Totala utgifter:</th>
-                            <th>-@FilteredBudgetItems.Sum(i => i.Amount) kr</th>
+                            <th>-@_filteredBudgetItems.Sum(i => i.Amount) kr</th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -123,36 +117,37 @@
 </div>
 
 @code {
-    private BudgetItem NewItem = new();
-    private List<Category> Categories { get; set; } = new();
-    private List<BudgetItem> FilteredBudgetItems { get; set; } = new();
-    private IEnumerable<int> Years { get; set; } = new List<int>();
-    private string CategoryName { get; set; }
+    private BudgetItem _newItem = new();
+    private List<Category> _categories { get; set; } = new();
+    private List<BudgetItem> _filteredBudgetItems { get; set; } = new();
+    private IEnumerable<int> _years { get; set; } = new List<int>();
+    private string _categoryName { get; set; }
     private int? _selectedMonth;
     private int? _selectedYear;
     private string? _selectedCategory;
 
     protected override async Task OnInitializedAsync()
     {
-        Categories = await CategoriesManager.GetCategoriesAsync();
-        FilteredBudgetItems = await GetFilteredBudgetItems();
-        Years = await GetYears();
+        _categories = await CategoriesManager.GetCategoriesAsync();
+        _filteredBudgetItems = await GetFilteredBudgetItems();
+        _years = await GetYears();
+        SelectedYear = DateTime.Now.Year; 
+        SelectedMonth = DateTime.Now.Month;
     }
 
     private async Task AddBudgetItem()
     {
-        NewItem.IsIncome = false; 
-        NewItem.Date = DateTime.Now;
-        await BudgetItemManager.CreateBudgetItemAsync(NewItem);
-        FilteredBudgetItems = await GetFilteredBudgetItems();
-        NewItem = new BudgetItem
+        _newItem.IsIncome = false; 
+        _newItem.Date = DateTime.Now;
+        await BudgetItemManager.CreateBudgetItemAsync(_newItem);
+        _filteredBudgetItems = await GetFilteredBudgetItems();
+        _newItem = new BudgetItem
         {
             Name = string.Empty,
             Amount = 0,
             IsIncome = false,
             Date = DateTime.Now
         };
-        
         StateHasChanged();
     }
 
@@ -172,7 +167,7 @@
         }
         if (!string.IsNullOrWhiteSpace(SelectedCategory))
         {
-            var selectedCategory = Categories.Where(c => c.Name == SelectedCategory).FirstOrDefault();
+            var selectedCategory = _categories.Where(c => c.Name == SelectedCategory).FirstOrDefault();
             items = items.Where(i => i.CategoryId == selectedCategory.Id).ToList();
         }
         return items;
@@ -196,36 +191,29 @@
             .OrderByDescending(y => y);
         return years;
     }
+    
     private async Task UpdatedFilters()
     {
-        FilteredBudgetItems =  await GetFilteredBudgetItems();
-    }
-    private async Task OnFilterChanged()
-    {
-        await UpdatedFilters();
+        _filteredBudgetItems =  await GetFilteredBudgetItems();
         StateHasChanged();
     }
     
-    
-
     public int? SelectedYear
     {
         get => _selectedYear;
         set
         {
             _selectedYear = value;
-            _ = OnFilterChanged();
+            _ = UpdatedFilters();
         }
     }
-    
-
     public int? SelectedMonth
     {
         get => _selectedMonth;
         set
         {
             _selectedMonth = value;
-            _ = OnFilterChanged();
+            _ = UpdatedFilters();
         }
     }
     public string? SelectedCategory
@@ -234,8 +222,7 @@
         set
         {
             _selectedCategory = value;
-            _ = OnFilterChanged();
+            _ = UpdatedFilters();
         }
     }
-    
 }
