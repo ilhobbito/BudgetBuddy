@@ -41,30 +41,29 @@ public class BudgetService
       
     }
 
-    public async Task <decimal> GetTotalAmount(bool isIncome)
+    public decimal GetTotalAmount(List<BudgetItem> budgetItems, bool income)
     {
-        BudgetItems = await _budgetItemManager.GetBudgetItemsAsync();
-        if (BudgetItems.Select(x => x.Name).ToList().Contains("") ||  BudgetItems.Select(x => x.Name).ToList().Contains(null))
+        if (budgetItems.Select(x => x.Name).ToList().Contains("") ||  budgetItems.Select(x => x.Name).ToList().Contains(null))
         {
             throw new ArgumentException("Items must have a name");
         }
-        if (BudgetItems.Any(b => b.Amount < 0))
+        if (budgetItems.Any(b => b.Amount < 0))
         {
-            foreach (var negativeItem in BudgetItems.Where(b => b.Amount < 0))
+            foreach (var negativeItem in budgetItems.Where(b => b.Amount < 0))
             {
                 Console.WriteLine($"{negativeItem.Name}: {negativeItem.Amount}");
             }
-            throw new ArgumentOutOfRangeException(nameof(BudgetItems), "Budget items cannot be negative");
+            throw new ArgumentOutOfRangeException(nameof(budgetItems), "Budget items cannot be negative");
         }
-        return BudgetItems
-            .Where(x => x.IsIncome == isIncome)
-            .Sum(x => x.Amount);
+        return budgetItems
+            .Where(x => x.IsIncome == income).Sum(x => x.Amount);
     }
 
-    public async Task<decimal> GetNetResult()
+    public decimal GetNetResult(List<BudgetItem> budgetItems)
     {
-        var totalIncome = await GetTotalAmount(true);
-        var totalExpenses = await GetTotalAmount(false);
-        return totalIncome - totalExpenses;
+        
+        var income =  GetTotalAmount(budgetItems, true);
+        var expense =  GetTotalAmount(budgetItems, false);
+        return income - expense;
     }
 }
