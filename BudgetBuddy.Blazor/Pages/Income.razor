@@ -15,17 +15,17 @@
             <h4>Lägg till inkomst</h4>
         </div>
         <div class="card-body">
-            <EditForm Model="@NewItem" OnValidSubmit="AddBudgetItem" FormName="BudgetForm">
+            <EditForm Model="@_newItem" OnValidSubmit="AddBudgetItem" FormName="BudgetForm">
                 <DataAnnotationsValidator/>
                 <ValidationSummary/>
 
                 <div class="mb-3">
                     <label for="name" class="form-label">Inkomstkälla:</label>
-                    <InputText id="name" class="form-control" @bind-Value="NewItem.Name"/>
+                    <InputText id="name" class="form-control" @bind-Value="_newItem.Name"/>
                 </div>
                 <div class="mb-3">
                     <label for="amount" class="form-label">Belopp:</label>
-                    <InputNumber id="amount" class="form-control" @bind-Value="NewItem.Amount"/>
+                    <InputNumber id="amount" class="form-control" @bind-Value="_newItem.Amount"/>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Lägg till</button>
@@ -41,9 +41,9 @@
                     <div class="form-group mb-0 me-2">
                         <select id="yearSelect" class="form-select" @bind="SelectedYear" @bind:event="onchange">
                             <option value="">År</option>
-                            @if (Years != null)
+                            @if (_years != null)
                             {
-                                @foreach (var year in Years)
+                                @foreach (var year in _years)
                                 {
                                     <option value="@year">@year</option>
                                 }
@@ -72,9 +72,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                @if (FilteredBudgetItems != null)
+                @if (_filteredBudgetItems != null)
                 {
-                    @foreach (var item in FilteredBudgetItems)
+                    @foreach (var item in _filteredBudgetItems)
                     {
                         <tr>
                             <td>@item.Name</td>
@@ -91,9 +91,9 @@
                 <tfoot>
                 <tr>
                     <th>Totalt inkomst:</th>
-                    @if (FilteredBudgetItems != null)
+                    @if (_filteredBudgetItems != null)
                     {
-                        <th>@FilteredBudgetItems.Sum(i => i.Amount) kr</th>
+                        <th>@_filteredBudgetItems.Sum(i => i.Amount) kr</th>
                     }
                     else
                     {
@@ -109,39 +109,36 @@
 
 @code {
 
-    private BudgetItem NewItem = new();
-    private List<Category> Categories = new();
-    private List<BudgetItem> FilteredBudgetItems { get; set; }
+    private BudgetItem _newItem = new();
+    private List<Category> _categories = new();
+    private List<BudgetItem> _filteredBudgetItems { get; set; }
     private int? _selectedMonth;
     private int? _selectedYear;
-
-    private IEnumerable<int> Years { get; set; }
+    private IEnumerable<int> _years { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        Categories = await CategoriesManager.GetCategoriesAsync(); 
+        _categories = await CategoriesManager.GetCategoriesAsync(); 
         await UpdatedFilters();
-        Years = await GetYears();
+        _years = await GetYears();
+        SelectedYear = DateTime.Now.Year;
+        SelectedMonth = DateTime.Now.Month;
     }
 
     private async Task UpdatedFilters()
     {
-       FilteredBudgetItems =  await GetFilteredBudgetItems();
+       _filteredBudgetItems =  await GetFilteredBudgetItems();
+       StateHasChanged();
     }
-    private async Task OnFilterChanged()
-    {
-        await UpdatedFilters();
-        StateHasChanged();
-    }
+    
     private async Task AddBudgetItem()
     {
-        NewItem.IsIncome = true;
-        NewItem.Date = DateTime.Now;
-        NewItem.CategoryId = 0;
-        await BudgetItemManager.CreateBudgetItemAsync(NewItem);
-        FilteredBudgetItems = await GetFilteredBudgetItems();
-        NewItem = new BudgetItem();
-        
+        _newItem.IsIncome = true;
+        _newItem.Date = DateTime.Now;
+        _newItem.CategoryId = 0;
+        await BudgetItemManager.CreateBudgetItemAsync(_newItem);
+        _filteredBudgetItems = await GetFilteredBudgetItems();
+        _newItem = new BudgetItem();
         StateHasChanged();
     }
 
@@ -182,26 +179,23 @@
         return years;
     }
     
-    
-
-    public int? SelectedYear
+    int? SelectedYear
     {
         get => _selectedYear;
         set
         {
             _selectedYear = value;
-            _ = OnFilterChanged();
+            _ = UpdatedFilters();
         }
     }
     
-
-    public int? SelectedMonth
+    int? SelectedMonth
     {
         get => _selectedMonth;
         set
         {
             _selectedMonth = value;
-            _ = OnFilterChanged();
+            _ = UpdatedFilters();
         }
     }
 

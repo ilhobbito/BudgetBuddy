@@ -64,8 +64,6 @@ public class CategoriesManagerTests
     }
     
     
-    
-
     [Fact]
     public async Task TestIfReturnErrorOnFailedCreateCategory()
     {

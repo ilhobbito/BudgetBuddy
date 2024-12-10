@@ -11,58 +11,73 @@
 <div class="container mt-5">
     <h1 class="mb-4">Översikt</h1>
     <p class="text-muted">Här är en sammanställning av dina inkomster och utgifter.</p>
-    <img src="banknotes-7850299_640.jpg" alt=""/>
-   
-    <div class="card">
-        <div class="card-header bg-info text-white">
-            <h4>Totalt inkomster</h4>
-        </div>
-        <div class="card-body">
-            <h3 class="text-success">@_totalIncome kr</h3>
-        </div>
+    <div>
+        <img src="banknotes-7850299_640.jpg" alt=""/>
     </div>
-
- 
-    <div class="card mt-3">
-        <div class="card-header bg-info text-white">
-            <h4>Totalt utgifter</h4>
-        </div>
-        <div class="card-body">
-            <h3 class="text-danger">@_totalExpense kr</h3>
-        </div>
-    </div>
-
-   
-    <div class="card mt-3">
-        <div class="card-header bg-info text-white">
-            <h4>Totalt resultat</h4>
-        </div>
-        <div class="card-body">
-           
-            @{
-                //var netResult = await BudgetService.GetNetResult();
+    <div class="form-group mb-0 me-2">
+        <select id="yearSelect" class="form-select" @bind="SelectedYear" @bind:event="onchange">
+            <option value="">År</option>
+            @if (_years != null)
+            {
+                @foreach (var year in _years)
+                {
+                    <option value="@year">@year</option>
+                }
             }
-            <h3 class="text-primary">
-                @if (_netResult >= 0)
-                {
-                    @($"Du har {_netResult} kr kvar att spendera ")
-                }
-                else
-                {
-                    @($"Din budget ligger på {_netResult} kr, ajajajaj lyxfällan nästa")
-                }
-            </h3>
-        </div>
+        </select>
+    </div>
+    <div class="form-group mb-0 me-2">
+        <select id="monthSelect" class="form-select" @bind="SelectedMonth" @bind:event="onchange">
+            <option value="">Alla månader</option>
+            @foreach (var month in GetMonths())
+            {
+                <option value="@month.Value">@month.Text</option>
+            }
+        </select>
     </div>
 </div>
 
+<div class="card">
+    <div class="card-header bg-info text-white">
+        <h4>@GetTitle("Totalt inkomster")</h4>
+    </div>
+    <div class="card-body">
+        <h3 class="text-success">@_incomeItems.Sum(x => x.Amount) kr</h3>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-header bg-info text-white">
+        <h4>@GetTitle("Totalt utgifter")</h4>
+    </div>
+    <div class="card-body">
+        <h3 class="text-danger">@_expenseItems.Sum(x => x.Amount) kr</h3>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-header bg-info text-white">
+        <h4>@GetTitle("Resultat")</h4>
+    </div>
+    <div class="card-body">
+        <h3 class="text-primary">
+            @if (_netResult >= 0)
+            {
+                @($"Du har {_netResult} kr kvar att spendera ")
+            }
+            else
+            {
+                @($"Din budget ligger på {_netResult} kr, ajajajaj lyxfällan nästa")
+            }
+        </h3>
+    </div>
+</div>
 <div class="card mt-4">
     <div class="card-header bg-info text-white">
         <h4>Miniräknare</h4>
     </div>
     <div class="card-body">
         <div class="calculator">
-            <!-- Ett enda textfält för att skriva in ekvationen -->
             <input type="text" class="form-control mb-3" @bind="_display" placeholder="Skriv din ekvation här" />
             <button class="btn btn-success" @onclick="Calculate">=</button>
             <button class="btn btn-danger" @onclick="Clear">C</button>
@@ -71,38 +86,113 @@
 </div>
 @code
 {
-    private decimal _netResult;
-    private decimal _totalIncome;
-    private decimal _totalExpense;
     private List<BudgetItem> _budgetsItems = new List<BudgetItem>();
     private List<Category> _categories = new List<Category>();
+    private List<BudgetItem> _filteredBudgetItems { get; set; }
+    private List<BudgetItem> _incomeItems = new List<BudgetItem>();
+    private List<BudgetItem> _expenseItems = new List<BudgetItem>();
+    private decimal _netResult;
+    private int? _selectedMonth;
+    private int? _selectedYear;
+    private IEnumerable<int> _years { get; set; }
+
+
     
     private string? _display = "";
     protected override async Task OnInitializedAsync()
     {
-        _netResult = await BudgetService.GetNetResult();
-        _totalIncome = await BudgetService.GetTotalAmount(true);
-        _totalExpense = await BudgetService.GetTotalAmount(false);
         _categories = await CategoriesManager.GetCategoriesAsync();
         _budgetsItems = await BudgetItemManager.GetBudgetItemsAsync();
+        await UpdatedFilters();
+        _years = await GetYears();
 
         if (_categories.Count <= 0 || _budgetsItems.Count <= 0)
         {
             await BudgetService.SeedCategoriesAndBudgetItemsAsync(_categories, _budgetsItems);
         }
+        SelectedYear = DateTime.Now.Year; 
+        SelectedMonth = DateTime.Now.Month;
+    }
+   
+    private async Task UpdatedFilters()
+    {
+         _incomeItems =  await GetFilteredBudgetItems(true); 
+         _expenseItems = await GetFilteredBudgetItems(false);
+         _netResult = _incomeItems.Sum(x => x.Amount) - _expenseItems.Sum(x => x.Amount);
+         StateHasChanged();
+    }
+    
+    private async Task<List<BudgetItem>> GetFilteredBudgetItems(bool isIncomeFilter)
+    { 
+        var items = await BudgetItemManager.GetBudgetItemsAsync(); 
+        items = items.Where(i => i.IsIncome == isIncomeFilter).ToList(); 
+        if (!string.IsNullOrEmpty(SelectedMonth?.ToString())) { var month = int.Parse(SelectedMonth.ToString()); items = items.Where(i => i.Date.Month == month).ToList(); } 
+        if (!string.IsNullOrEmpty(SelectedYear?.ToString())) { var year = int.Parse(SelectedYear.ToString()); items = items.Where(i => i.Date.Year == year).ToList(); } return items; }
 
+    private IEnumerable<(string Text, string Value)> GetMonths()
+    {
+        return Enumerable.Range(1, 12).Select(m => (
+            Text: new DateTime(1, m, 1).ToString("MMMM"),
+            Value: m.ToString()
+        ));
+    }
+
+    private async Task<IEnumerable<int>> GetYears()
+    {
+        var items = await BudgetItemManager.GetBudgetItemsAsync();
+        var years = items
+            .Where(i => i.IsIncome == true)
+            .Select(i => i.Date.Year)
+            .Distinct()
+            .OrderByDescending(y => y);
+        return years;
+    }
+
+    int? SelectedYear
+    {
+        get => _selectedYear;
+        set
+        {
+            _selectedYear = value;
+            _ = UpdatedFilters();
+        }
+    }
+    
+    int? SelectedMonth
+    {
+        get => _selectedMonth;
+        set
+        {
+            _selectedMonth = value;
+            _ = UpdatedFilters();
+        }
     }
     
     private void Clear()
     {
-        _display = ""; // Rensar inmatningsfältet
+        _display = "";
+    }
+    private string GetTitle(string baseTitle)
+    {
+        if (SelectedYear.HasValue && SelectedMonth.HasValue)
+        {
+            var monthName = new DateTime(1, SelectedMonth.Value, 1).ToString("MMMM", new System.Globalization.CultureInfo("sv-SE"));
+            return $"{baseTitle} för {monthName} {SelectedYear}";
+        }
+        else if (SelectedYear.HasValue)
+        {
+            return $"{baseTitle} för {SelectedYear}";
+        }
+        else
+        {
+            return baseTitle;
+        }
     }
 
     private void Calculate()
     {
         try
         {
-            // Utvärdera uttrycket med hjälp av DataTable.Compute
             var result = new System.Data.DataTable().Compute(_display, null);
             _display = result.ToString();
         }

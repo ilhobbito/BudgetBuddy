@@ -30,7 +30,7 @@ public class BudgetItemManagerTests
         
         var budgetItem = new BudgetItem()
         {
-            Name = "Inomst",
+            Name = "Inkomst",
             CategoryId = 1,
             Amount = 200m,
             IsIncome = true,

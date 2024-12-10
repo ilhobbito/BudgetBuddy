@@ -28,8 +28,8 @@ public class BudgetServiceTests
         
         var service = new BudgetService(null, mockBudgetItemManager.Object);
         // Act
-        var totalIncome = await service.GetTotalAmount(true);
-        var totalExpense = await service.GetTotalAmount(false);
+        var totalIncome =  service.GetTotalAmount(budgetItems, true);
+        var totalExpense =  service.GetTotalAmount(budgetItems, false);
         // Assert
         Assert.Equal(30, totalIncome);
         Assert.Equal(15, totalExpense);
@@ -54,7 +54,7 @@ public class BudgetServiceTests
         
         var service = new BudgetService(null, mockBudgetItemManager.Object);
         // Act
-        var netSum = await service.GetNetResult();
+        var netSum =  service.GetNetResult(budgetItems);
         // Assert
         Assert.Equal(15, netSum);
     }
@@ -85,13 +85,13 @@ public class BudgetServiceTests
         // Act & Assert
         if (income < 0 || expense < 0)
         {
-            var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetNetResult());
-            Assert.Equal("BudgetItems", exception.ParamName);
+            var exception =  Assert.Throws<ArgumentOutOfRangeException>(() => service.GetNetResult(budgetItems));
+            Assert.Equal("budgetItems", exception.ParamName);
             Assert.Contains("Budget items cannot be negative", exception.Message);
         }
         else
         {
-            var netSum = await service.GetNetResult();
+            var netSum =  service.GetNetResult(budgetItems);
             Assert.Equal(total, netSum);
         }
     }
@@ -114,7 +114,7 @@ public class BudgetServiceTests
         
         var service = new BudgetService(null, mockBudgetItemManager.Object);
         // Act
-        var exception = await Assert.ThrowsAsync<ArgumentException>(() => service.GetNetResult());
+        var exception = Assert.Throws<ArgumentException>(() => service.GetNetResult(budgetItems));
         
         // Assert
         Assert.Contains("Items must have a name", exception.Message);
