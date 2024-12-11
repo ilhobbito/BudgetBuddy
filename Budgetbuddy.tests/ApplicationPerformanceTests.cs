@@ -22,7 +22,6 @@ public class ApplicationPerformanceTests
     [Fact]
     public async Task LoadTimeUnderCertainSeconds()
     {
-        
         var sut = new BudgetItemManager(_client);
         var stopwatch = Stopwatch.StartNew();
 
