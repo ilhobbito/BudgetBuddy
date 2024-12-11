@@ -157,6 +157,9 @@
             var year = int.Parse(SelectedYear.ToString());
             items = items.Where(i => i.Date.Year == year).ToList();
         }
+        
+        items = items.OrderByDescending(i => i.Date).ToList();
+        
         return items;
     }
 

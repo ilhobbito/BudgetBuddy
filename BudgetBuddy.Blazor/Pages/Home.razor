@@ -165,6 +165,25 @@
             .OrderByDescending(y => y);
         return years;
     }
+    
+    private string GetTitle(string baseTitle)
+    {
+        if (SelectedYear.HasValue && SelectedMonth.HasValue)
+        {
+            var monthName = new DateTime(1, SelectedMonth.Value, 1).ToString("MMMM", new System.Globalization.CultureInfo("sv-SE"));
+            return $"{baseTitle} för {monthName} {SelectedYear}";
+        }
+        else if (SelectedYear.HasValue)
+        {
+            return $"{baseTitle} för {SelectedYear}";
+        }
+        else
+        {
+            return baseTitle;
+        }
+    }
+    
+    
 
     int? SelectedYear
     {
@@ -190,22 +209,7 @@
     {
         _display = "";
     }
-    private string GetTitle(string baseTitle)
-    {
-        if (SelectedYear.HasValue && SelectedMonth.HasValue)
-        {
-            var monthName = new DateTime(1, SelectedMonth.Value, 1).ToString("MMMM", new System.Globalization.CultureInfo("sv-SE"));
-            return $"{baseTitle} för {monthName} {SelectedYear}";
-        }
-        else if (SelectedYear.HasValue)
-        {
-            return $"{baseTitle} för {SelectedYear}";
-        }
-        else
-        {
-            return baseTitle;
-        }
-    }
+    
 
     private void Calculate()
     {

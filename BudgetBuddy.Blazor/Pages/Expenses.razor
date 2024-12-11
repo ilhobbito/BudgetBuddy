@@ -170,6 +170,9 @@
             var selectedCategory = _categories.Where(c => c.Name == SelectedCategory).FirstOrDefault();
             items = items.Where(i => i.CategoryId == selectedCategory.Id).ToList();
         }
+        
+        items = items.OrderByDescending(i => i.Date).ToList();
+        
         return items;
     }
 
